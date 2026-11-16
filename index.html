@@ -477,6 +477,15 @@ footer { position: relative; z-index: 20; }
 .job-desc.is-clamped::after { background: linear-gradient(0deg, var(--sbg, #0c0c0e) 30%, transparent); }
 .slide.is-doc { background: #0c0c0e; }
 :root { --line: rgba(255,255,255,.14); }
+
+/* Закреплённые вкладки разделов под шапкой */
+.tab-strip { position: fixed; left: 0; right: 0; z-index: 9; pointer-events: none; opacity: 0; transition: opacity .2s; background: var(--black); }
+.tab-strip.show { opacity: 1; }
+.strip-tab { appearance: none; border: 0; background: transparent; cursor: pointer; font-family: var(--display); bottom: 0; top: auto; visibility: hidden; pointer-events: none; }
+.strip-tab.on { visibility: visible; pointer-events: auto; }
+.strip-tab:hover { color: var(--pink); }
+.strip-tab:focus-visible { outline: 2px solid var(--pink); outline-offset: -2px; }
+.stack-mark { height: 0; }
 </style>
 </head>
 <body>
@@ -922,21 +931,43 @@ footer { position: relative; z-index: 20; }
   var secs = Array.prototype.slice.call(document.querySelectorAll('.stack'));
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tabs = ['Обо мне', 'Портфолио', 'Опыт работы', 'Навыки', 'Образование', 'Контакты'];
-  secs.forEach(function (el, i) { if (i === 0) return;
+  var bar = document.querySelector('.bar');
+  var strip = document.createElement('nav'); strip.className = 'tab-strip'; strip.setAttribute('aria-label', 'Быстрый переход к разделам');
+  document.body.appendChild(strip);
+  var marks = [], copies = [];
+  secs.forEach(function (el, i) {
+    var m = document.createElement('div'); m.className = 'stack-mark'; el.parentNode.insertBefore(m, el); marks.push(m);
+    if (i === 0) { copies.push(null); return; }
     var t = document.createElement('span'); t.className = 'stack-tab cap'; t.setAttribute('aria-hidden', 'true');
-    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t); });
+    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t);
+    var c = document.createElement('button'); c.type = 'button'; c.className = 'stack-tab strip-tab cap';
+    c.textContent = tabs[i - 1] || ''; c.style.setProperty('--k', i - 1);
+    c.style.setProperty('--sbg', getComputedStyle(el).getPropertyValue('--sbg') || '#0c0c0e');
+    c.addEventListener('click', function () { go(i); }); strip.appendChild(c); copies.push(c);
+  });
+  function hh() { return bar ? bar.offsetHeight : 60; }
+  function th() { var t = secs[1] && secs[1].querySelector('.stack-tab'); return t ? t.offsetHeight : 32; }
+  function go(i) { var y = marks[i].getBoundingClientRect().top + scrollY - (i ? hh() + th() : hh()); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    var id = a.getAttribute('href').slice(1); var i = secs.findIndex(function (el) { return el.id === id; });
+    if (i > -1) a.addEventListener('click', function (e) { e.preventDefault(); go(i); });
+  });
   function layout() {
-    var vh = innerHeight;
-    secs.forEach(function (el, i) { el.style.zIndex = i + 1; el.style.top = Math.min(60, vh - el.offsetHeight) + 'px'; });
+    var vh = innerHeight, H = hh(), T = th();
+    strip.style.top = H + 'px'; strip.style.height = T + 'px';
+    secs.forEach(function (el, i) { el.style.zIndex = i + 1; var stick = i ? H + T : H; el.style.top = Math.min(stick, vh - el.offsetHeight) + 'px'; });
     tick();
   }
   function tick() {
-    if (reduce) return;
-    var vh = innerHeight;
-    secs.forEach(function (el, i) { var next = secs[i + 1]; if (!next) return;
+    var vh = innerHeight, line = hh() + th() + 1, any = false;
+    secs.forEach(function (el, i) {
+      if (copies[i]) { var on = marks[i].getBoundingClientRect().top <= line; copies[i].classList.toggle('on', on); if (on) any = true; }
+      if (reduce) return;
+      var next = secs[i + 1]; if (!next) return;
       var p = Math.max(0, Math.min(1, (el.getBoundingClientRect().bottom - next.getBoundingClientRect().top) / vh));
       el.style.filter = p > 0.01 ? 'brightness(' + (1 - p * 0.45).toFixed(3) + ')' : '';
     });
+    strip.classList.toggle('show', any);
   }
   var t = false;
   addEventListener('scroll', function () { if (!t) { t = true; requestAnimationFrame(function () { t = false; tick(); }); } }, { passive: true });
