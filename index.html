@@ -512,6 +512,20 @@ footer { z-index: 200; }
 /* Главный экран статичен: без параллакса фото и текста */
 .anim .hero-img { transform: none !important; }
 .anim .hero-in { transform: none !important; opacity: 1 !important; }
+
+/* Вертикальные вкладки-папки справа */
+:root { --tw: 40px; }
+.stack-copy, .stack-tab { display: none !important; }
+.stack { width: calc(100% - var(--tw)); }
+.vtab { position: absolute; left: calc(100% - 1px); width: calc(var(--tw) + 1px); padding: 20px 0; writing-mode: vertical-rl; display: flex; align-items: center; justify-content: center; border: 0; color: #fff; font-family: var(--display); font-size: 13px; letter-spacing: .06em; white-space: nowrap; cursor: pointer; z-index: 51; background: var(--sbg, #0c0c0e); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 24' preserveAspectRatio='none'%3E%3Cpath d='M0 0C0 7 3 9 8 10.5L31 16.5C35.4 17.6 38 19.8 38 24H0Z'/%3E%3C/svg%3E") left top / 100% 24px no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 24' preserveAspectRatio='none'%3E%3Cpath d='M0 24C0 17 3 15 8 13.5L31 7.5C35.4 6.4 38 4.2 38 0H0Z'/%3E%3C/svg%3E") left bottom / 100% 24px no-repeat, linear-gradient(#000, #000) left center / 100% calc(100% - 46px) no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 24' preserveAspectRatio='none'%3E%3Cpath d='M0 0C0 7 3 9 8 10.5L31 16.5C35.4 17.6 38 19.8 38 24H0Z'/%3E%3C/svg%3E") left top / 100% 24px no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 24' preserveAspectRatio='none'%3E%3Cpath d='M0 24C0 17 3 15 8 13.5L31 7.5C35.4 6.4 38 4.2 38 0H0Z'/%3E%3C/svg%3E") left bottom / 100% 24px no-repeat, linear-gradient(#000, #000) left center / 100% calc(100% - 46px) no-repeat; }
+.vtab:hover { color: var(--pink); }
+.vtab:focus-visible { outline: 2px solid var(--pink); outline-offset: -4px; }
+.vtab-copy { position: fixed; left: auto; right: 0; width: var(--tw); display: none; }
+.vtab-copy.on { display: flex; }
+@media (max-width: 600px) { :root { --tw: 28px; } .vtab { font-size: 10px; padding: 26px 0; } }
+
+/* Колонка под вкладками: чуть светлее, чтобы папки читались */
+body::after { content: ""; position: fixed; top: 0; right: 0; bottom: 0; width: var(--tw); background: #1d1c22; z-index: 1; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -962,44 +976,40 @@ footer { z-index: 200; }
   secs.forEach(function (el, i) {
     var m = document.createElement('div'); m.className = 'stack-mark'; el.parentNode.insertBefore(m, el); marks.push(m);
     if (i === 0) { own.push(null); copies.push(null); return; }
-    var t = document.createElement('button'); t.type = 'button'; t.className = 'stack-tab cap';
-    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t); own.push(t);
+    var t = document.createElement('button'); t.type = 'button'; t.className = 'vtab cap';
+    t.textContent = tabs[i - 1] || ''; el.appendChild(t); own.push(t);
     t.addEventListener('click', function () { go(i); });
-    var c = document.createElement('button'); c.type = 'button'; c.className = 'stack-copy cap'; c.style.setProperty('--k', i - 1);
-    c.style.setProperty('--sbg', getComputedStyle(el).getPropertyValue('--sbg') || '#0c0c0e');
-    c.innerHTML = '<span class="stack-tab cap" style="--k:' + (i - 1) + '">' + (tabs[i - 1] || '') + '</span>';
-    c.setAttribute('aria-label', tabs[i - 1] || ''); c.addEventListener('click', function () { go(i); });
-    document.body.appendChild(c); copies.push(c);
+    var c = document.createElement('button'); c.type = 'button'; c.className = 'vtab vtab-copy cap';
+    c.textContent = tabs[i - 1] || ''; c.style.setProperty('--sbg', getComputedStyle(el).getPropertyValue('--sbg') || '#0c0c0e');
+    c.addEventListener('click', function () { go(i); }); document.body.appendChild(c); copies.push(c);
   });
   function hh() { return bar ? bar.offsetHeight : 60; }
-  function th() { return own[1] ? own[1].offsetHeight : 30; }
-  function stickTop(i) { return i ? hh() + i * th() : hh(); }
-  function go(i) { var y = marks[i].getBoundingClientRect().bottom + scrollY - stickTop(i); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
+  function go(i) { var y = marks[i].getBoundingClientRect().bottom + scrollY - hh(); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     var id = a.getAttribute('href').slice(1); var i = secs.findIndex(function (el) { return el.id === id; });
     if (i > -1) a.addEventListener('click', function (e) { e.preventDefault(); go(i); });
   });
+  var offs = [];
   function layout() {
-    var vh = innerHeight, H = hh(), T = th();
+    var vh = innerHeight, H = hh(), y = 12;
     secs.forEach(function (el, i) {
-      el.style.zIndex = 2 * i + 2; el.style.top = Math.min(stickTop(i), vh - el.offsetHeight) + 'px';
-      var c = copies[i]; if (c) { c.style.zIndex = 2 * i + 3; c.style.top = (H + (i - 1) * T) + 'px'; c.style.height = T + 'px'; }
+      el.style.zIndex = 2 * i + 2; el.style.top = Math.min(H, vh - el.offsetHeight) + 'px';
+      var t = own[i], c = copies[i]; if (!t) return;
+      offs[i] = y; t.style.top = y + 'px';
+      c.style.zIndex = 2 * i + 3; c.style.top = (H + y) + 'px';
+      y += t.offsetHeight - 14;
     });
     tick();
   }
   function tick() {
-    var vh = innerHeight;
+    var vh = innerHeight, H = hh();
     secs.forEach(function (el, i) {
-      var c = copies[i];
-      var r = el.getBoundingClientRect(), st = stickTop(i), ct = st - r.top;
-      if (i && ct > 1 && r.bottom > st) { el.style.clipPath = 'inset(' + ct.toFixed(1) + 'px 0 0 0)'; el.style.webkitClipPath = el.style.clipPath; }
-      else if (el.style.clipPath) { el.style.clipPath = ''; el.style.webkitClipPath = ''; }
-      if (c) c.classList.toggle('on', ct > 1 && r.bottom > st);
+      var r = el.getBoundingClientRect(), c = copies[i];
+      if (c) c.classList.toggle('on', r.top < H - 1 && r.bottom > H + offs[i]);
       if (reduce) return;
       var next = secs[i + 1]; if (!next) return;
-      var ov = el.getBoundingClientRect().bottom - next.getBoundingClientRect().top;
-      var p = Math.max(0, Math.min(1, ov / Math.min(360, vh * 0.45)));
-      el.style.setProperty('--cov', p.toFixed(3)); el.style.filter = '';
+      var ov = r.bottom - next.getBoundingClientRect().top;
+      el.style.setProperty('--cov', Math.max(0, Math.min(1, ov / Math.min(360, vh * 0.45))).toFixed(3));
     });
   }
   var t = false;
