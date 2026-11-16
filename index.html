@@ -503,7 +503,7 @@ footer { z-index: 200; }
 .cm-close { z-index: 301; }
 
 /* Закрытый блок полностью уходит в цвет фона, без полупрозрачности */
-.stack::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; background: var(--sbg, #0c0c0e); opacity: var(--cov, 0); pointer-events: none; }
+.stack::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; background: var(--sbg, #0c0c0e); opacity: var(--cov, 0); pointer-events: none; transition: opacity .25s ease; }
 .stack > .stack-tab { z-index: 51; }
 /* Градиент под закреплённой вкладкой длинного блока: контент уходит под него */
 .stack-copy::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: min(560px, 55vh); background: var(--sbg); -webkit-mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); pointer-events: none; }
@@ -1001,8 +1001,8 @@ footer { z-index: 200; }
       if (c) c.classList.toggle('on', ct > 1 && r.bottom > st);
       if (reduce) return;
       var next = secs[i + 1]; if (!next) return;
-      var ov = el.getBoundingClientRect().bottom - next.getBoundingClientRect().top;
-      var p = Math.max(0, Math.min(1, ov / Math.min(360, vh * 0.45)));
+      var d = next.getBoundingClientRect().top - stickTop(i + 1);
+      var p = Math.max(0, Math.min(1, 1 - d / 20));
       el.style.setProperty('--cov', p.toFixed(3)); el.style.filter = '';
     });
   }
