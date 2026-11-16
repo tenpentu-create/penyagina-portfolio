@@ -53,8 +53,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline
 
 /* Герой */
 .hero { position: relative; min-height: 560px; border-bottom: 1px solid var(--line); background: #8d8c8f; }
-.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 30%; filter: grayscale(1) contrast(1.05); }
-.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(20,20,22,.45), rgba(20,20,22,.1) 55%, transparent); pointer-events: none; }
+.hero-img { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 30%; filter: grayscale(1) contrast(1.05); }
+.hero::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: linear-gradient(90deg, rgba(20,20,22,.45), rgba(20,20,22,.1) 55%, transparent); pointer-events: none; }
 .hero-in { position: relative; z-index: 2; min-height: clamp(560px, 56vw, 760px); display: grid; align-content: center; justify-items: start; text-align: left; padding: 60px clamp(20px, 5vw, 64px); max-width: 60%; }
 .hero h1 { color: var(--pink); font-weight: 600; font-size: clamp(54px, 9vw, 116px); margin: 0; max-width: 11ch; text-wrap: balance; }
 .hero .role { color: #fff; font-size: clamp(20px, 2.6vw, 30px); font-weight: 500; margin: 22px 0 0; max-width: 28ch; text-wrap: balance; }
@@ -151,7 +151,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline
 .project-slider { min-height: 0; align-items: stretch; background: var(--white); }
 .project-slider .project-body { height: 100%; align-content: center; }
 .slider { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--black); border-left: 1px solid var(--line); order: 2; }
-.slides, .slide { position: absolute; inset: 0; }
+.slides, .slide { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .slide { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; }
 .slide.is-active { opacity: 1; }
 .sl-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 0; border: 1px solid rgba(255,255,255,.7); background: rgba(12,12,14,.35); color: #fff; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(4px); transition: color .2s, border-color .2s; }
@@ -171,7 +171,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline
 @media (max-width: 860px) { .slider-vert { border-right: 0; border-bottom: 1px solid var(--line); min-height: 0; aspect-ratio: 4 / 5; } }
 /* Открытие кадров в модальном окне */
 .slides { cursor: zoom-in; }
-.lb { position: fixed; inset: 0; z-index: 100; background: rgba(12,12,14,.94); display: none; place-items: center; }
+.lb { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; background: rgba(12,12,14,.94); display: none; place-items: center; }
 .lb.open { display: grid; }
 .lb img { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); object-fit: contain; display: block; }
 .lb-media { display: grid; place-items: center; }
@@ -189,7 +189,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline
 .slide .sl-cap b { font-family: var(--display); text-transform: uppercase; font-weight: 600; letter-spacing: .04em; color: var(--pink); }
 .slide.is-doc { background: var(--white); }
 .slider-vert .slide.is-doc img { object-fit: contain; object-position: center; padding: 16px 16px 90px; }
-.slide.is-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
+.slide.is-video video { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
 .slide.is-video.playing video { opacity: 1; }
 .play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; border: 1px solid #fff; background: rgba(12,12,14,.4); color: #fff; display: grid; place-items: center; cursor: pointer; z-index: 2; transition: color .2s, border-color .2s, opacity .3s; }
 .play svg { width: 28px; height: 28px; fill: currentColor; }
@@ -283,14 +283,14 @@ button.cover { cursor: pointer; }
 .cover-img { display: block; aspect-ratio: 1600 / 1093; overflow: hidden; background: #e4e3e6; position: relative; }
 .cover-img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
 button.cover:hover .cover-img img { transform: scale(1.03); }
-.cover-soon { position: absolute; inset: 0; display: grid; place-items: center; color: var(--grey); }
+.cover-soon { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: grid; place-items: center; color: var(--grey); }
 .cover-txt { display: grid; justify-items: start; align-content: start; gap: 10px; padding: 16px 20px 20px; border-top: 1px solid var(--line); }
 .cover-t { font-size: clamp(20px, 2vw, 28px); font-weight: 600; }
 button.cover:hover .cover-t { color: var(--amber); }
 .cover.is-empty .cover-t { color: var(--grey); }
 button.cover:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
 @media (max-width: 760px) { .covers { grid-template-columns: 1fr; } .cover + .cover { border-left: 0; border-top: 1px solid var(--line); } }
-.cm { position: fixed; inset: 0; z-index: 60; background: rgba(12,12,14,.92); overflow-y: auto; overscroll-behavior: contain; }
+.cm { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 60; background: rgba(12,12,14,.92); overflow-y: auto; overscroll-behavior: contain; }
 .cm[hidden] { display: none; }
 .cm-body { max-width: 1600px; margin: 0 auto; padding: 72px clamp(0px, 3vw, 40px) 40px; }
 .case img { display: block; width: 100%; height: auto; }
@@ -389,6 +389,17 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
   .cm-body { padding: 64px 0 24px; }
   .cm-close { top: 10px; right: 10px; }
   .sl-arrow { width: 40px; height: 40px; }
+}
+
+/* Запасной вариант для старых мобильных браузеров без aspect-ratio */
+@supports not (aspect-ratio: 1 / 1) {
+  .slider::before, .cover-img::before { content: ""; display: block; }
+  .slider::before { padding-top: 56.25%; }
+  .slider-card::before { padding-top: 133.33%; }
+  .cover-img::before { padding-top: 68.3%; }
+  .cover-img img { position: absolute; top: 0; left: 0; }
+  .slider-vert::before { padding-top: 0; }
+  @media (max-width: 860px) { .slider-vert::before { padding-top: 125%; } }
 }
 </style>
 </head>
