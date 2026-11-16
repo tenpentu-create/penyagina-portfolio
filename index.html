@@ -512,6 +512,10 @@ footer { z-index: 200; }
 /* Главный экран статичен: без параллакса фото и текста */
 .anim .hero-img { transform: none !important; }
 .anim .hero-in { transform: none !important; opacity: 1 !important; }
+
+/* Между фото и «Обо мне» без паузы и без линии */
+.hero.stack + .stack-mark { height: 0; }
+.hero { border-bottom: 0; }
 </style>
 </head>
 <body>
