@@ -597,6 +597,12 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 /* «Обо мне»: серый текст колонки становится белым при наведении */
 .pillar p, .plist li { transition: color .2s; }
 .pillar:hover p, .pillar:hover .plist li { color: #fff; }
+
+/* Минимальный размер шрифта на всём сайте — 16 px */
+.cap, .chip, .dur, .job .dur, .meta, .project-body .meta, .org-sub, .job .org-sub, .sk-n, .stack-tab, .more,
+.slide .sl-cap, .slide .sl-cap b, .lb-cap, .lb-cap b, .job-desc, .job-list li, .job-list b, .job p,
+.sk p, .sk-acc .sk p, details.sk p, .edu-row span:not(.edu-y), .edu-y, .cta-row .d, footer .cap, .bar nav a { font-size: 16px; }
+@media (max-width: 600px) { .cta-row .d, .stack-tab { font-size: 16px; } }
 </style>
 </head>
 <body>
