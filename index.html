@@ -575,6 +575,12 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .job-list li::before { background: var(--amber-l); }
 .job:focus-visible { outline-color: var(--amber-l); }
 #experience .job { border-bottom: 0; }
+
+/* «Обо мне»: фиолетовые заголовки и маркеры, при наведении на колонку — салатовые */
+.pillar h3 { color: var(--amber-l); transition: color .2s; }
+.plist li::before { background: var(--amber-l); transition: background .2s; }
+.pillar:hover h3 { color: var(--pink); }
+.pillar:hover .plist li::before { background: var(--pink); }
 </style>
 </head>
 <body>
