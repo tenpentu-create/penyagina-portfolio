@@ -566,7 +566,9 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .chip { background: var(--amber); color: #fff; }
 
 /* Запас под карточками кейсов во вкладке «Веб и UX/UI-дизайн» */
-#panel-web { padding-bottom: 50px; }
+.covers { align-items: stretch; }
+.covers > .cover { padding-bottom: 50px; align-content: start; }
+@media (max-width: 760px) { .covers > .cover { padding-bottom: 0; } .covers > .cover:last-child { padding-bottom: 50px; } }
 </style>
 </head>
 <body>
