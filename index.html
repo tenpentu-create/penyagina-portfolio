@@ -555,6 +555,10 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .sk-head .cap { font-size: 22px; letter-spacing: .04em; color: #fff; }
 .sk-head { padding: 22px 0 8px; }
 @media (max-width: 600px) { details.sk summary h4 { font-size: 18px; } .sk-head .cap { font-size: 20px; } }
+
+.stack-fill { position: fixed; left: 0; right: 0; height: 56px; display: none; pointer-events: none; }
+.stack-fill.on { display: block; }
+@media (max-width: 600px) { .stack-fill { height: 40px; } }
 </style>
 </head>
 <body>
@@ -1001,7 +1005,7 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tabs = ['Обо мне', 'Портфолио', 'Опыт работы', 'Навыки', 'Образование', 'Контакты'];
   var bar = document.querySelector('.bar');
-  var marks = [], own = [], rows = [];
+  var marks = [], own = [], rows = [], fills = [];
   function bg(el) { var v = getComputedStyle(el).getPropertyValue('--sbg').trim(); return v || '#0c0c0e'; }
   secs.forEach(function (el, i) {
     var m = document.createElement('div'); m.className = 'stack-mark'; el.parentNode.insertBefore(m, el); marks.push(m);
@@ -1014,6 +1018,7 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
     var c = document.createElement('button'); c.type = 'button'; c.className = 'stack-tab cap';
     c.textContent = tabs[i - 1] || ''; c.style.setProperty('--k', i - 1); c.addEventListener('click', function () { go(i); });
     r.appendChild(c); document.body.appendChild(r); rows.push(r);
+    var f = document.createElement('div'); f.className = 'stack-fill'; f.style.background = bg(el); document.body.appendChild(f); fills[i] = f;
   });
   function hh() { return bar ? bar.offsetHeight : 60; }
   function th() { return own[1] ? own[1].offsetHeight : 30; }
@@ -1029,6 +1034,7 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
       el.style.zIndex = 2 * i + 2; el.style.top = Math.min(stickTop(i), (i < secs.length - 1 ? vh * 0.5 : vh) - el.offsetHeight) + 'px';
       el.style.clipPath = ''; el.style.webkitClipPath = '';
       var r = rows[i]; if (r) { r.style.top = (H + (i - 1) * T) + 'px'; r.style.height = T + 'px'; }
+      if (fills[i]) { fills[i].style.top = (H + i * T) + 'px'; fills[i].style.zIndex = 2 * i + 3; }
     });
     tick();
   }
@@ -1036,13 +1042,13 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
     var deepest = -1;
     secs.forEach(function (el, i) {
       var r = rows[i], rect = el.getBoundingClientRect(), st = stickTop(i);
-      if (r) { var on = rect.top <= st + 0.5; r.classList.toggle('on', on); r.classList.remove('fill'); if (on) deepest = i; }
+      if (r) { var on = rect.top <= st + 0.5; r.classList.toggle('on', on); if (on) deepest = i; }
+      if (fills[i]) fills[i].classList.toggle('on', rect.top < st - 0.5 && rect.bottom > st);
       if (reduce) return;
       var next = secs[i + 1]; if (!next) return;
       var d = next.getBoundingClientRect().top - stickTop(i + 1);
       el.style.setProperty('--cov', Math.max(0, Math.min(1, 1 - d / 20)).toFixed(3));
     });
-    if (deepest > 0 && secs[deepest].getBoundingClientRect().top < stickTop(deepest) - 0.5) rows[deepest].classList.add('fill');
   }
   var t = false;
   addEventListener('scroll', function () { tick(); }, { passive: true });
