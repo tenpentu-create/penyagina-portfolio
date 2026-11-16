@@ -588,6 +588,10 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .sl-dot[aria-current="true"] { width: 13px; height: 32px; background: var(--pink); background-clip: content-box; }
 .sl-dot:hover { background-color: #fff; }
 .sl-dot[aria-current="true"]:hover { background-color: var(--pink); }
+
+/* Плюс в шапке: фиолетовая заливка при наведении */
+.plus { transition: background-color .2s, color .2s, transform .25s; }
+.plus:hover, .plus:focus-visible { background: var(--amber); color: #fff; }
 </style>
 </head>
 <body>
