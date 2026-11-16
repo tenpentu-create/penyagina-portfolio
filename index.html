@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Penyagina Tatyana — AI Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Дерзкая редакционная сетка: блоки во всю ширину, разделённые тонкими линиями.
+     Узкий гротеск заглавными, чёрно-белое фото, салатовый и фиолетовый акценты. */
+  --black: #0c0c0e;
+  --paper: #f1f0f2;
+  --white: #ffffff;
+  --line: #0c0c0e;
+  --grey: #6e6c73;
+  --pink: #C9FE34;
+  --amber: #7E3BEB;
+  --display: "Oswald", "Arial Narrow", "Helvetica Neue Condensed", sans-serif;
+  --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { margin: 0; background: var(--paper); color: var(--black); font-family: var(--body); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+a:hover { color: var(--amber); }
+button, input, select, textarea { font-family: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.d { font-family: var(--display); text-transform: uppercase; letter-spacing: -.005em; line-height: .95; }
+.cap { font-family: var(--display); text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: .06em; }
+.todo { color: var(--black); background: var(--pink); padding: 0 4px; font-style: italic; }
+
+/* Шапка */
+.bar { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: auto 1fr 60px; align-items: stretch; background: var(--paper); border-bottom: 1px solid var(--line); height: 60px; }
+.brand { display: flex; align-items: center; padding: 0 20px; font-family: var(--display); font-weight: 700; font-size: 26px; text-transform: uppercase; text-decoration: none; letter-spacing: -.01em; }
+.bar nav { display: flex; justify-content: center; align-items: center; gap: clamp(14px, 3vw, 48px); overflow-x: auto; padding: 0 12px; }
+.bar nav a { text-decoration: none; white-space: nowrap; }
+.bar nav a:hover, .brand:hover { color: var(--amber); }
+.plus { border-left: 1px solid var(--line); display: grid; place-items: center; text-decoration: none; font-size: 30px; font-weight: 300; line-height: 1; }
+.plus:hover { color: var(--amber); }
+@media (max-width: 760px) { .bar { grid-template-columns: 1fr 60px; } .bar nav { display: none; } .brand { font-size: 22px; } }
+
+/* Фото-заглушки */
+.ph { position: relative; overflow: hidden; display: grid; place-items: center; }
+.ph-label { position: relative; z-index: 1; font-family: var(--display); text-transform: uppercase; font-size: 12px; letter-spacing: .08em; padding: 6px 10px; border: 1px dashed currentColor; opacity: .75; text-align: center; max-width: 80%; }
+.ph-bw { background: radial-gradient(ellipse 30% 42% at 50% 42%, #9b9aa0, transparent 70%), radial-gradient(ellipse 60% 70% at 50% 110%, #3a393e, transparent 70%), linear-gradient(180deg, #d9d8dc, #b7b6bb); color: #fff; }
+.ph-pink { background: radial-gradient(ellipse 40% 30% at 35% 50%, rgba(201,254,52,.95), transparent 70%), radial-gradient(ellipse 80% 60% at 20% 20%, rgba(255,255,255,.75), transparent 70%), linear-gradient(160deg, #f1ffc9, #dcff7a 70%, #C9FE34); color: var(--black); }
+.ph-amber { background: radial-gradient(ellipse 50% 40% at 60% 40%, rgba(255,255,255,.6), transparent 70%), linear-gradient(160deg, #d9c6fb, #a77df2 60%, #7E3BEB); color: #fff; }
+
+/* Герой */
+.hero { position: relative; min-height: 560px; border-bottom: 1px solid var(--line); background: #8d8c8f; }
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 30%; filter: grayscale(1) contrast(1.05); }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(20,20,22,.45), rgba(20,20,22,.1) 55%, transparent); pointer-events: none; }
+.hero-in { position: relative; z-index: 2; min-height: clamp(560px, 56vw, 760px); display: grid; align-content: center; justify-items: start; text-align: left; padding: 60px clamp(20px, 5vw, 64px); max-width: 60%; }
+.hero h1 { color: var(--pink); font-weight: 600; font-size: clamp(54px, 9vw, 116px); margin: 0; max-width: 11ch; text-wrap: balance; }
+.hero .role { color: #fff; font-size: clamp(20px, 2.6vw, 30px); font-weight: 500; margin: 22px 0 0; max-width: 28ch; text-wrap: balance; }
+.hero a.more { margin-top: 40px; display: inline-flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
+.hero a.more:hover { color: var(--pink); }
+.arr { display: inline-block; flex: none; width: 28px; height: 12px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 12'%3E%3Cpath d='M0 6H25.5M20.5 1L25.5 6L20.5 11' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E") no-repeat center / 100% 100%; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 12'%3E%3Cpath d='M0 6H25.5M20.5 1L25.5 6L20.5 11' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E") no-repeat center / 100% 100%; }
+
+@media (max-width: 760px) { .hero-img { object-position: 72% 20%; } .hero::after { background: linear-gradient(0deg, rgba(20,20,22,.65), transparent 60%); } .hero-in { max-width: 100%; align-content: end; min-height: 620px; } }
+
+/* Обо мне: 3 колонки + достижения */
+.pillars { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--black); color: #fff; border-bottom: 1px solid var(--line); scroll-margin-top: 60px; }
+.pillar { padding: 56px 28px; display: grid; align-content: start; gap: 14px; }
+.pillar + .pillar { border-left: 1px solid #3b3a40; }
+.pillar .ico { font-size: 22px; line-height: 1; color: #fff; }
+.pillar h3 { font-family: var(--display); text-transform: uppercase; font-size: 22px; font-weight: 600; margin: 0; line-height: 1.05; color: var(--pink); }
+.pillar p { margin: 0; font-size: 14.5px; color: #cfcdd4; line-height: 1.55; }
+.plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.plist li { position: relative; padding-left: 16px; font-size: 14.5px; color: #cfcdd4; line-height: 1.45; }
+.plist li::before { content: ""; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; border-radius: 0; background: var(--pink); }
+.ach { grid-column: 1 / -1; border-top: 1px solid #3b3a40; padding: 48px 28px 56px; display: grid; gap: 24px; }
+.ach-head { display: flex; align-items: center; gap: 14px; }
+.ach-head h3 { font-family: var(--display); text-transform: uppercase; font-size: 22px; font-weight: 600; margin: 0; color: var(--pink); }
+.ach-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+.ach-row div { display: grid; gap: 6px; padding: 8px 28px; }
+.ach-row div:first-child { padding-left: 0; }
+.ach-row div + div { border-left: 1px solid #3b3a40; }
+.ach-row b { font-family: var(--display); font-size: clamp(56px, 8vw, 96px); font-weight: 600; line-height: .95; color: #fff; }
+.ach-row span { font-size: 15px; color: #cfcdd4; }
+@media (max-width: 960px) { .pillars { grid-template-columns: 1fr; } .pillar + .pillar { border-left: 0; border-top: 1px solid #3b3a40; } }
+@media (max-width: 560px) { .pillar { padding: 40px 20px; } .ach-row { grid-template-columns: 1fr; } .ach-row div { padding: 14px 0; } .ach-row div + div { border-left: 0; border-top: 1px solid #3b3a40; } }
+
+/* Заголовок секции */
+.sec { border-bottom: 1px solid var(--line); scroll-margin-top: 60px; }
+.sec-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 56px 20px 24px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.sec-head h2 { font-size: clamp(48px, 8vw, 110px); font-weight: 600; margin: 0; }
+.sec-head .cap { color: var(--grey); }
+.sec.dark { background: var(--black); color: #fff; }
+.sec.dark .sec-head, .sec.dark .job { border-color: #3b3a40; }
+.sec.dark .sec-head .cap { color: #a5a3ab; }
+.sec.dark .todo { color: var(--pink); background: transparent; padding: 0; }
+.sec.dark a:hover { color: var(--pink); }
+
+/* Портфолио */
+.ptabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.ptab { appearance: none; border: 0; background: transparent; color: var(--black); font-size: clamp(22px, 3vw, 36px); font-weight: 600; padding: 22px 20px; text-align: left; cursor: pointer; border-bottom: 4px solid transparent; }
+.ptab + .ptab { border-left: 1px solid var(--line); }
+.ptab:hover { color: var(--amber); }
+.ptab[aria-selected="true"] { background: var(--black); color: var(--paper); border-bottom-color: var(--pink); }
+.ptab[aria-selected="true"]:hover { color: var(--pink); }
+.ptab:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
+@media (max-width: 560px) { .ptabs { grid-template-columns: 1fr; } .ptab + .ptab { border-left: 0; border-top: 1px solid var(--line); } }
+.project { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); min-height: 460px; }
+.ppanel .project:last-child { border-bottom: 0; }
+.project .ph { border-right: 1px solid var(--line); min-height: 300px; }
+.project.flip .ph { order: 2; border-right: 0; border-left: 1px solid var(--line); }
+.project-body { padding: 48px clamp(20px, 4vw, 56px); display: grid; align-content: center; gap: 14px; background: var(--white); }
+.project-body .cap { color: var(--black); background: var(--pink); padding: 3px 8px; justify-self: start; }
+.project-body h3 { font-size: clamp(38px, 5vw, 64px); font-weight: 600; margin: 0; text-wrap: balance; }
+.project-body .meta { color: var(--grey); font-size: 14px; margin: 0; }
+.project-body p { margin: 0; max-width: 56ch; }
+.facts { display: grid; margin-top: 8px; border-top: 1px solid var(--line); }
+.fact { display: grid; grid-template-columns: 56px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: 15px; }
+.fact b { font-family: var(--display); font-size: 34px; font-weight: 600; line-height: 1; color: var(--black); background: var(--pink); text-align: center; padding: 4px 0; }
+.live { display: inline-flex; align-items: center; gap: 8px; }
+.live::before { content: ""; width: 8px; height: 8px; border-radius: 0; background: var(--amber); }
+@media (max-width: 860px) { .project { grid-template-columns: 1fr; } .project .ph, .project.flip .ph { order: 0; border: 0; border-bottom: 1px solid var(--line); } }
+
+
+/* правки из макета */
+.pillar h3 { font-size: 28px; }
+.pillar p, .plist li { font-size: 16px; color: #a5a3ab; }
+.ach { padding-top: 48px; }
+.ach-row div:first-child { padding-left: 28px; }
+.ach-row span { font-size: 28px; color: #fff; line-height: 1.45; }
+.ptab:not([aria-selected="true"]) { background: #fff; color: var(--grey); }
+.ptab:not([aria-selected="true"]):hover { color: var(--amber); }
+.project-body .cap { background: none; color: var(--amber); padding: 3px 0; }
+.project-body .meta { color: var(--amber); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 12px; background: var(--pink); color: var(--black); padding: 2px 10px; }
+.steps { display: grid; border-top: 1px solid var(--line); margin-top: 8px; }
+.step { display: flex; gap: 20px; align-items: center; padding: 12px 0 20px; border-bottom: 1px solid var(--line); }
+.step:last-child { border-bottom: 0; }
+.step > b { flex: none; width: 68px; font-family: var(--display); font-size: 64px; font-weight: 600; line-height: 1; }
+.step > div { display: grid; gap: 2px; }
+.step-t { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.step-d { font-size: 16px; }
+.step .chips { padding-top: 4px; }
+.project-body { gap: 20px; }
+.ptitle { display: grid; gap: 0; }
+.ptext { display: grid; gap: 4px; }
+
+/* Слайдер баннеров */
+.project-slider { min-height: 0; align-items: stretch; background: var(--white); }
+.project-slider .project-body { height: 100%; align-content: center; }
+.slider { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--black); border-left: 1px solid var(--line); order: 2; }
+.slides, .slide { position: absolute; inset: 0; }
+.slide { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; }
+.slide.is-active { opacity: 1; }
+.sl-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 0; border: 1px solid rgba(255,255,255,.7); background: rgba(12,12,14,.35); color: #fff; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(4px); transition: color .2s, border-color .2s; }
+.sl-arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sl-arrow:hover { color: var(--pink); border-color: var(--pink); }
+.sl-prev { left: 16px; } .sl-next { right: 16px; }
+.sl-dots { position: absolute; left: 0; right: 0; bottom: 16px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.sl-dot { width: 5px; height: 5px; border-radius: 0; border: 0; padding: 0; background: rgba(255,255,255,.5); cursor: pointer; transition: background .2s, width .2s; }
+.sl-dot[aria-current="true"] { background: var(--pink); width: 24px; height: 10px; }
+@media (max-width: 860px) { .slider { order: 0; border-left: 0; border-bottom: 1px solid var(--line); } }
+/* Вертикальный слайдер «Новогодней охоты»: колонки 50/50 по центральной линии */
+.project-vert { min-height: 0; background: var(--white); }
+.slider-vert { aspect-ratio: auto; order: 0; border-left: 0; border-right: 1px solid var(--line); align-self: stretch; min-height: clamp(560px, 62vw, 880px); }
+.slider-vert .slide { display: block; }
+.slider-vert .slide img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+.project-vert .project-body { align-content: center; }
+@media (max-width: 860px) { .slider-vert { border-right: 0; border-bottom: 1px solid var(--line); min-height: 0; aspect-ratio: 4 / 5; } }
+/* Открытие кадров в модальном окне */
+.slides { cursor: zoom-in; }
+.lb { position: fixed; inset: 0; z-index: 100; background: rgba(12,12,14,.94); display: none; place-items: center; }
+.lb.open { display: grid; }
+.lb img { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); object-fit: contain; display: block; }
+.lb-media { display: grid; place-items: center; }
+.lb .sl-arrow { position: fixed; }
+.lb .sl-prev { left: 24px; } .lb .sl-next { right: 24px; }
+.lb-close { position: fixed; top: 20px; right: 24px; width: 48px; height: 48px; border: 1px solid rgba(255,255,255,.7); background: transparent; color: #fff; font-size: 28px; line-height: 1; cursor: pointer; }
+.lb-close::before, .lb-close::after { content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 2px; background: currentColor; transform: translate(-50%, -50%) rotate(45deg); }
+.lb-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.lb-close:hover { color: var(--pink); border-color: var(--pink); }
+.lb-count { position: fixed; bottom: 24px; left: 0; right: 0; text-align: center; color: #fff; font-family: var(--display); font-size: 14px; letter-spacing: .06em; }
+@media (max-width: 600px) { .lb img { max-width: 100vw; max-height: calc(100vh - 140px); } .lb .sl-arrow { top: auto; bottom: 16px; transform: none; } .lb-count { bottom: 30px; } }
+/* Подписи, видео и документы в слайдере */
+.slide { overflow: hidden; }
+.slide .sl-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 72px 20px 44px; background: linear-gradient(0deg, rgba(12,12,14,.85), rgba(12,12,14,0)); color: #fff; font-size: 14px; line-height: 1.4; pointer-events: none; }
+.slide .sl-cap b { font-family: var(--display); text-transform: uppercase; font-weight: 600; letter-spacing: .04em; color: var(--pink); }
+.slide.is-doc { background: var(--white); }
+.slider-vert .slide.is-doc img { object-fit: contain; object-position: center; padding: 16px 16px 90px; }
+.slide.is-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
+.slide.is-video.playing video { opacity: 1; }
+.play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; border: 1px solid #fff; background: rgba(12,12,14,.4); color: #fff; display: grid; place-items: center; cursor: pointer; z-index: 2; transition: color .2s, border-color .2s, opacity .3s; }
+.play svg { width: 28px; height: 28px; fill: currentColor; }
+.play:hover, .slide.is-video:hover .play { color: var(--pink); border-color: var(--pink); }
+.slide.is-video.playing .play { opacity: 0; }
+.lb video { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); display: block; }
+.lb-cap { position: fixed; top: 28px; left: 24px; right: 96px; color: #fff; font-size: 14px; }
+.lb-cap b { font-family: var(--display); text-transform: uppercase; color: var(--pink); letter-spacing: .04em; }
+/* Слайдер карточек Librederm (3:4) */
+.project-card { min-height: 0; background: var(--white); }
+.slider-card { aspect-ratio: 3 / 4; order: 0; border-left: 0; border-right: 1px solid var(--line); align-self: start; width: 100%; }
+.slider-card .slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.project-card .project-body { align-content: center; }
+@media (max-width: 860px) { .slider-card { border-right: 0; border-bottom: 1px solid var(--line); } }
+/* Опыт: раскрывающиеся описания */
+.job .dur { display: block; margin-top: 6px; font-size: 14px; color: #a5a3ab; }
+.job .org a { color: inherit; text-underline-offset: 3px; }
+.job .org-sub { color: #6e6c73; font-size: 14px; margin-top: 6px; }
+.job:focus-visible { outline: 3px solid var(--pink); outline-offset: -3px; }
+.job-desc { position: relative; color: #dedce2; font-size: 15px; line-height: 1.55; }
+.job-desc p { margin: 0 0 6px; }
+.job-list { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.job-list li::marker { color: var(--pink); font-family: var(--display); }
+.job-list b { font-weight: 600; color: #fff; }
+.job-more { display: none; }
+.job-desc.is-clamped { max-height: 9.6em; overflow: hidden; transition: max-height .45s ease; }
+.job-desc.is-clamped::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 64px; background: linear-gradient(0deg, var(--black) 30%, rgba(12,12,14,0)); pointer-events: none; transition: opacity .3s; }
+.job:hover .job-desc.is-clamped, .job:focus-within .job-desc.is-clamped { max-height: 60em; }
+.job:hover .job-desc.is-clamped::after, .job:focus-within .job-desc.is-clamped::after, .job:hover .job-more, .job:focus-within .job-more { opacity: 0; visibility: hidden; }
+/* Навыки: точка, заголовок Oswald, описание */
+.sk-list { display: grid; gap: 26px; }
+.sk { position: relative; padding-left: 22px; }
+.sk::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; background: var(--amber); }
+.sk h4 { margin: 0 0 6px; font-size: 22px; font-weight: 600; line-height: 1.1; }
+.sk p { margin: 0; font-size: 15px; line-height: 1.55; color: #55515a; max-width: 52ch; }
+/* Образование */
+.edu-h { margin: 0 0 8px; font-size: 26px; font-weight: 600; }
+.edu-row { display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.edu-h + .edu-row { border-top: 1px solid var(--line); }
+.edu > div:last-child > .edu-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.edu-y { font-family: var(--display); font-size: 16px; font-weight: 500; color: var(--amber); padding-top: 2px; }
+.edu-row b { display: block; font-family: var(--display); text-transform: uppercase; font-size: 22px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
+.edu-row span:not(.edu-y) { color: #55515a; font-size: 15px; }
+/* Навыки: группы хард и софт */
+.sk-group-h { padding: 20px 20px 18px; border-bottom: 1px solid var(--line); background: var(--black); color: var(--paper); }
+.sk-group-h h3 { margin: 0; font-size: 26px; font-weight: 600; }
+.skills + .sk-group-h { border-top: 1px solid var(--line); }
+.sk-soft { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 40px; padding: 36px 20px 44px; }
+@media (max-width: 960px) { .sk-soft { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .sk-soft { grid-template-columns: 1fr; } }
+.sk-sub { margin: 28px 0 18px; padding-bottom: 8px; border-bottom: 1px solid var(--line); color: var(--amber); }
+.skills h3 + .sk-sub { margin-top: 0; }
+/* Навыки: раскрывающиеся списки */
+.sk-acc { border-top: 1px solid var(--line); }
+.sk-acc summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 16px 0; cursor: pointer; }
+.sk-acc summary::-webkit-details-marker { display: none; }
+.sk-acc summary .cap { font-size: 18px; color: var(--black); }
+.sk-n { font-family: var(--display); font-size: 14px; color: var(--amber); }
+.sk-plus { margin-left: auto; position: relative; width: 36px; height: 36px; border: 1px solid var(--line); flex: none; transition: background .2s, border-color .2s; }
+.sk-plus::before, .sk-plus::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; background: currentColor; transform: translate(-50%, -50%); transition: transform .25s; }
+.sk-plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+.sk-acc[open] .sk-plus::after { transform: translate(-50%, -50%) rotate(0deg); }
+.sk-acc summary:hover .cap, .sk-acc summary:hover .sk-plus { color: var(--amber); border-color: var(--amber); }
+.sk-acc summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.sk-acc .sk-list { grid-template-columns: 1fr; gap: 22px; padding: 6px 0 26px; }
+.sk-acc .sk h4 { font-size: 19px; }
+.sk-acc .sk p { font-size: 14px; }
+.skills h3 { margin-bottom: 8px; }
+/* Навыки: одинаковый визуальный отступ сверху и снизу */
+.sk-acc[open] .sk-list { padding-bottom: 16px; }
+.skills h3 { line-height: 1; }
+.job-list { list-style: none; padding-left: 0; }
+.job-list li { position: relative; padding-left: 20px; }
+.job-list li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; background: var(--pink); }
+.cta a.cta-row:hover, .cta a.cta-row:hover .d, .cta a.cta-row:hover .val { color: var(--pink); }
+.cta-row .d { font-family: var(--body); text-transform: none; font-size: 16px; font-weight: 400; letter-spacing: 0; line-height: 1.2; }
+.cta-row span.val { font-family: var(--display); text-transform: uppercase; font-size: clamp(40px, 5.6vw, 80px); font-weight: 600; line-height: 1; letter-spacing: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .cta-row .d { font-size: 14px; } .cta-row span.val { font-size: clamp(26px, 8vw, 40px); } }
+/* Достижения: салатовый фон, колонки по линиям блока выше */
+.ach { background: var(--pink); border-top: 0; padding: 0; gap: 0; }
+.ach-row div, .ach-row div:first-child { padding: 48px 28px 56px; }
+.ach-row div + div { border-left: 1px solid var(--black); }
+.ach-row b { color: var(--black); }
+.ach-row span { color: var(--black); font-family: var(--display); text-transform: uppercase; font-size: 28px; font-weight: 500; line-height: 1.1; letter-spacing: 0; }
+@media (max-width: 560px) { .ach-row div, .ach-row div:first-child { padding: 28px 20px; } .ach-row div + div { border-left: 0; border-top: 1px solid var(--black); } }
+/* Веб-кейсы: превью обложек и модальное окно с кейсом */
+.covers { display: grid; grid-template-columns: repeat(3, 1fr); }
+.cover { appearance: none; border: 0; background: transparent; padding: 0; text-align: left; display: grid; color: var(--black); }
+.cover + .cover { border-left: 1px solid var(--line); }
+button.cover { cursor: pointer; }
+.cover-img { display: block; aspect-ratio: 1600 / 1093; overflow: hidden; background: #e4e3e6; position: relative; }
+.cover-img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+button.cover:hover .cover-img img { transform: scale(1.03); }
+.cover-soon { position: absolute; inset: 0; display: grid; place-items: center; color: var(--grey); }
+.cover-txt { display: grid; justify-items: start; align-content: start; gap: 10px; padding: 16px 20px 20px; border-top: 1px solid var(--line); }
+.cover-t { font-size: clamp(20px, 2vw, 28px); font-weight: 600; }
+button.cover:hover .cover-t { color: var(--amber); }
+.cover.is-empty .cover-t { color: var(--grey); }
+button.cover:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
+@media (max-width: 760px) { .covers { grid-template-columns: 1fr; } .cover + .cover { border-left: 0; border-top: 1px solid var(--line); } }
+.cm { position: fixed; inset: 0; z-index: 60; background: rgba(12,12,14,.92); overflow-y: auto; overscroll-behavior: contain; }
+.cm[hidden] { display: none; }
+.cm-body { max-width: 1600px; margin: 0 auto; padding: 72px clamp(0px, 3vw, 40px) 40px; }
+.case img { display: block; width: 100%; height: auto; }
+.cm-close { position: fixed; top: 16px; right: 20px; z-index: 61; width: 48px; height: 48px; border: 1px solid rgba(255,255,255,.7); background: rgba(12,12,14,.6); color: #fff; cursor: pointer; }
+.cm-close::before, .cm-close::after { content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 2px; background: currentColor; transform: translate(-50%, -50%) rotate(45deg); }
+.cm-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.cm-close:hover { color: var(--pink); border-color: var(--pink); }
+.cm-close:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+/* Анимация при прокрутке: появление блоков и параллакс */
+.hero { overflow: hidden; }
+body { overflow-x: clip; }
+.anim .hero-img { transform: translate3d(0, var(--py, 0px), 0) scale(1.15); will-change: transform; }
+.anim .hero-in { transform: translate3d(0, var(--ty, 0px), 0); opacity: var(--to, 1); will-change: transform, opacity; }
+.anim .cover-img img { transform: translate3d(0, var(--py, 0px), 0) scale(1.14); }
+.anim button.cover:hover .cover-img img { transform: translate3d(0, var(--py, 0px), 0) scale(1.18); }
+.anim .sec-head h2 { transform: translate3d(var(--px, 0px), 0, 0); will-change: transform; }
+.anim .rv { opacity: 0; transform: translate3d(0, 48px, 0); transition: opacity .8s ease, transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
+.anim .rv.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .anim .rv { opacity: 1; transform: none; transition: none; } .anim .hero-img, .anim .hero-in, .anim .cover-img img, .anim .sec-head h2 { transform: none; opacity: 1; } }
+/* Опыт */
+.job { display: grid; grid-template-columns: 220px 1fr 1.4fr; border-bottom: 1px solid var(--line); }
+.job:last-child { border-bottom: 0; }
+.job > * { padding: 28px 20px; }
+.job .when { font-family: var(--display); text-transform: uppercase; font-size: 18px; font-weight: 500; color: var(--pink); }
+.job h3 { font-family: var(--display); text-transform: uppercase; font-size: 30px; font-weight: 600; margin: 0 0 6px; line-height: 1; }
+.job .org { color: #a5a3ab; }
+.job p { margin: 0 0 8px; color: #dedce2; max-width: 60ch; }
+@media (max-width: 860px) { .job { grid-template-columns: 1fr; } .job > * { padding: 6px 20px; } .job > *:first-child { padding-top: 24px; } .job > *:last-child { padding-bottom: 24px; } }
+
+/* Навыки */
+.skills { display: grid; grid-template-columns: 1fr 1fr; }
+.skills > div { padding: 12px 20px 0; }
+.skills > div + div { border-left: 1px solid var(--line); }
+.skills h3 { font-family: var(--display); text-transform: uppercase; font-size: 26px; font-weight: 600; margin: 0 0 18px; }
+.skills ol { margin: 0; padding: 0; list-style: none; counter-reset: k; display: grid; gap: 12px; }
+.skills li { counter-increment: k; display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+.skills li::before { content: counter(k, decimal-leading-zero); font-family: var(--display); font-weight: 600; color: var(--black); background: var(--pink); text-align: center; height: fit-content; }
+.skills li b { font-weight: 600; }
+@media (max-width: 760px) { .skills { grid-template-columns: 1fr; } .skills > div + div { border-left: 0; border-top: 1px solid var(--line); } }
+
+/* Образование */
+.edu { display: grid; grid-template-columns: 1fr 1fr; }
+.edu > div { padding: 32px 20px 32px; }
+.edu > div + div { border-left: 1px solid var(--line); }
+.edu-item { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.edu-item:first-of-type { border-top: 1px solid var(--line); }
+.edu-item b { display: block; font-family: var(--display); text-transform: uppercase; font-size: 26px; font-weight: 600; line-height: 1.05; }
+.edu-item span { color: var(--grey); font-size: 15px; }
+@media (max-width: 760px) { .edu { grid-template-columns: 1fr; } .edu > div + div { border-left: 0; border-top: 1px solid var(--line); } }
+
+/* Контакты */
+.cta { background: var(--amber); color: #fff; scroll-margin-top: 60px; }
+.cta-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 22px 40px 16px; }
+.cta-top h2 { font-size: clamp(34px, 5vw, 60px); font-weight: 600; margin: 0; max-width: 18ch; }
+.cta-row { display: grid; grid-template-columns: 140px 1fr auto; gap: 24px; align-items: center; padding: 22px 40px; border-top: 1px solid var(--line); text-decoration: none; }
+.cta .todo { color: var(--black); }
+@media (max-width: 600px) { .cta-top, .cta-row { padding-left: 20px; padding-right: 20px; } .cta-row { grid-template-columns: 1fr auto; gap: 8px 16px; } .cta-row span.val { grid-column: 1 / -1; grid-row: 2; } }
+footer { background: var(--black); color: #a5a3ab; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 18px 20px; }
+
+/* ===== Адаптация: планшет и телефон ===== */
+.bar { position: sticky; }
+@media (max-width: 1024px) {
+  .bar { grid-template-columns: 1fr 60px; }
+  .bar nav { display: none; position: absolute; top: 60px; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; padding: 0; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .bar.menu-open nav { display: flex; }
+  .bar nav a { padding: 18px 20px; border-top: 1px solid var(--line); font-size: 16px; }
+  .plus { transition: transform .25s; }
+  .bar.menu-open .plus { transform: rotate(45deg); }
+  .hero-img { object-position: 70% 20%; }
+  .hero::after { background: linear-gradient(0deg, rgba(20,20,22,.7), rgba(20,20,22,.15) 55%, transparent 75%); }
+  .hero-in { max-width: 100%; align-content: end; min-height: min(86vh, 760px); padding-bottom: 56px; }
+}
+@media (hover: none) {
+  .job-desc.is-clamped { max-height: none; }
+  .job-desc.is-clamped::after, .job-more { display: none; }
+}
+@media (max-width: 860px) {
+  .slider-vert { max-height: 82vh; }
+  .project-body { padding: 36px 24px 40px; }
+}
+@media (max-width: 600px) {
+  .sec-head { padding: 40px 20px 18px; }
+  .sec-head h2 { font-size: clamp(36px, 11vw, 48px); }
+  .anim .sec-head h2 { transform: none; }
+  .hero h1 { font-size: clamp(44px, 13vw, 64px); }
+  .hero-in { padding: 40px 20px 40px; min-height: 82vh; }
+  .project-body { padding: 28px 20px 32px; }
+  .step { gap: 14px; }
+  .step > b { width: 48px; font-size: 44px; }
+  .step-t { font-size: 22px; }
+  .step-d { font-size: 15px; }
+  .ach-row b { font-size: 56px; }
+  .ach-row span { font-size: 22px; }
+  .job h3 { font-size: 26px; }
+  .cover-txt { padding: 14px 20px 18px; }
+  .cm-body { padding: 64px 0 24px; }
+  .cm-close { top: 10px; right: 10px; }
+  .sl-arrow { width: 40px; height: 40px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="brand" href="#top">Penyagina Tatyana</a>
+  <nav aria-label="Разделы">
+    <a class="cap" href="#about">Обо мне</a>
+    <a class="cap" href="#projects">Портфолио</a>
+    <a class="cap" href="#experience">Опыт</a>
+    <a class="cap" href="#skills">Навыки</a>
+    <a class="cap" href="#education">Образование</a>
+    <a class="cap" href="#contacts">Контакты</a>
+  </nav>
+  <a class="plus" href="#contacts" aria-label="Связаться">+</a>
+</header>
+
+<!-- ГЕРОЙ -->
+<section class="hero" id="top">
+  <img class="hero-img" src="hero.jpg" alt="Татьяна Пенягина, портрет">
+  <div class="hero-in">
+    <h1 class="d">Penyagina Tatyana</h1>
+    <p class="role d">Web-designer · AI Creator</p>
+    <a class="more cap" href="#projects">Смотреть портфолио <span class="arr" aria-hidden="true"></span></a>
+  </div>
+</section>
+
+<!-- ОБО МНЕ -->
+<section class="pillars" id="about" aria-label="Обо мне">
+  <div class="pillar">
+    <h3>Позиционирование</h3>
+    <p>Я дизайнер с тремя годами коммерческого опыта. Проектирую интерфейсы и креативы, которые работают на пользователя и бизнес. Подхожу к контенту аналитически: связываю его с целями компании и слежу, как он влияет на результат.</p>
+  </div>
+  <div class="pillar">
+    <h3>Ключевые компетенции</h3>
+    <ul class="plist"><li>Работа с ИИ-инструментами и консистентность</li><li>Композиция, типографика, цвет</li><li>Работа в графических редакторах</li><li>Насмотренность и креативность</li><li>Понимание съёмочного процесса</li></ul>
+  </div>
+  <div class="pillar">
+    <h3>Личные качества</h3>
+    <p>Подхожу к решению задач нестандартно, смотрю с разных ракурсов, ищу необычные подходы (если требуется), пока не найду решение, которое и работает, и цепляет. Верю в силу эстетического интеллекта: красота, которая трогает, создаёт настоящую связь с аудиторией, и бренд хочется запомнить, полюбить и выбрать снова.</p>
+  </div>
+  <div class="ach">
+    <div class="ach-row">
+      <div><b>50+</b><span>сайтов</span></div>
+      <div><b>500+</b><span>баннеров</span></div>
+      <div><b>50+</b><span>видеокреативов</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ПОРТФОЛИО -->
+<section class="sec" id="projects">
+  <div class="sec-head"><h2 class="d">Портфолио</h2><span class="cap">2026</span></div>
+  <div class="ptabs" role="tablist" aria-label="Разделы портфолио">
+    <button class="ptab d" role="tab" id="tab-ads" aria-controls="panel-ads" aria-selected="true">Рекламные креативы</button>
+    <button class="ptab d" role="tab" id="tab-web" aria-controls="panel-web" aria-selected="false" tabindex="-1">Веб и UX/UI-дизайн</button>
+  </div>
+  <div class="ppanel" role="tabpanel" id="panel-ads" aria-labelledby="tab-ads">
+    <article class="project project-vert">
+      <div class="slider slider-vert" data-slider aria-roledescription="карусель" aria-label="Кадры ролика «Новогодняя охота»">
+        <div class="slides">
+          <div class="slide is-active is-video" data-video="hunt/final.mp4"><img src="hunt-1.jpg" alt="Ролик «Новогодняя охота», обложка"><video src="hunt/final.mp4" muted playsinline loop preload="none" poster="hunt-1.jpg"></video><button class="play" type="button" aria-label="Смотреть ролик"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><span class="sl-cap"><b>Финальный ролик</b> · 25 секунд</span></div>
+          <div class="slide is-doc"><img src="hunt/animatic.jpg" alt="Аниматик"><span class="sl-cap"><b>Аниматик</b></span></div>
+          <div class="slide is-doc"><img src="hunt/storyboard.jpg" alt="Раскадровка"><span class="sl-cap"><b>Раскадровка</b></span></div>
+          <div class="slide"><img src="hunt/f1.jpg" alt="Кадр 1: Валенки крадутся по снегу"><span class="sl-cap"><b>Кадр 1</b> · Валенки крадутся по снегу</span></div>
+          <div class="slide"><img src="hunt/f2.jpg" alt="Кадр 2: Кот следит за действиями"><span class="sl-cap"><b>Кадр 2</b> · Кот следит за действиями</span></div>
+          <div class="slide"><img src="hunt/f3.jpg" alt="Кадр 3: Хитрая Кира идёт к ёлке"><span class="sl-cap"><b>Кадр 3</b> · Хитрая Кира идёт к ёлке</span></div>
+          <div class="slide"><img src="hunt/f4a.jpg" alt="Кадр 4а: Хруст ветки под валенком"><span class="sl-cap"><b>Кадр 4а</b> · Хруст ветки под валенком</span></div>
+          <div class="slide"><img src="hunt/f4b.jpg" alt="Кадр 4б: Испуганный кот"><span class="sl-cap"><b>Кадр 4б</b> · Испуганный кот</span></div>
+          <div class="slide"><img src="hunt/f4c.jpg" alt="Кадр 4в: Испуганная Кира: «Ой!»"><span class="sl-cap"><b>Кадр 4в</b> · Испуганная Кира: «Ой!»</span></div>
+          <div class="slide"><img src="hunt/f5.jpg" alt="Кадр 5: Лиса убегает с кульком"><span class="sl-cap"><b>Кадр 5</b> · Лиса убегает с кульком</span></div>
+          <div class="slide"><img src="hunt/f6a.jpg" alt="Кадр 6а: Конфета падает в снег"><span class="sl-cap"><b>Кадр 6а</b> · Конфета падает в снег</span></div>
+          <div class="slide"><img src="hunt/f6b.jpg" alt="Кадр 6б: Рука тянется к конфете"><span class="sl-cap"><b>Кадр 6б</b> · Рука тянется к конфете</span></div>
+          <div class="slide"><img src="hunt/f7.jpg" alt="Кадр 7: Кира звонко смеётся"><span class="sl-cap"><b>Кадр 7</b> · Кира звонко смеётся</span></div>
+        </div>
+        <button class="sl-arrow sl-prev" type="button" aria-label="Предыдущий кадр"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="sl-arrow sl-next" type="button" aria-label="Следующий кадр"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <div class="sl-dots"></div>
+      </div>
+      <div class="project-body">
+        <div class="ptitle"><span class="cap">ИИ-видеокреатив</span>
+        <h3 class="d">Новогодняя охота</h3></div>
+        <div class="ptext"><p class="meta">Ателье детских костюмов «Волшебная шляпа» · 25 секунд</p>
+        <p>Новогодний рекламный ролик для соцсетей. Задача - создать атмосферу праздника и сказки. Русский народный костюм - главный акцент. Задача: показать оригинальность и качество костюмов ручной работы ателье.</p></div>
+        <div class="steps">
+          <div class="step"><b>01</b><div><span class="step-t d">Брифинг и идея</span><span class="step-d">Концепция проекта, брифинг клиента</span><div class="chips"><span class="chip">Claude</span><span class="chip">ChatGPT</span></div></div></div>
+          <div class="step"><b>02</b><div><span class="step-t d">Сценарий и раскадровка</span><span class="step-d">Сценарий, аниматик, персонаж и локация, ключевые кадры</span><div class="chips"><span class="chip">Claude</span><span class="chip">ChatGPT</span><span class="chip">Seedream</span><span class="chip">Nano Banana Pro</span></div></div></div>
+          <div class="step"><b>03</b><div><span class="step-t d">Видео и звук</span><span class="step-d">Оживление готовых кадров, звуки, эффекты, монтаж в редакторе</span><div class="chips"><span class="chip">Seedance 2.5</span><span class="chip">Suno</span><span class="chip">After Effects</span><span class="chip">DaVinci Resolve</span></div></div></div>
+        </div>
+      </div>
+    </article>
+    <article class="project flip project-slider">
+      <div class="slider" data-slider aria-roledescription="карусель" aria-label="Рекламные баннеры">
+        <div class="slides">
+          <img class="slide is-active" src="banner-1.jpg" alt="Баннер Geely Cityray: голубой кроссовер на горной дороге на закате">
+        </div>
+        <button class="sl-arrow sl-prev" type="button" aria-label="Предыдущий баннер"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="sl-arrow sl-next" type="button" aria-label="Следующий баннер"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <div class="sl-dots"></div>
+      </div>
+      <div class="project-body">
+        <div class="ptitle"><span class="cap">Баннеры для дилеров авто</span>
+        <h3 class="d">Рекламные баннеры</h3></div>
+        <div class="ptext"><p class="meta">Контекстная реклама · Таргетированная реклама</p>
+        <p>Разработка креативов для рекламных компаний крупных дилерских сетей</p>
+        <div class="chips"><span class="chip">Nano Banana Pro</span><span class="chip">Photoshop</span><span class="chip">Figma</span></div></div>
+      </div>
+    </article>
+    <article class="project project-card">
+      <div class="slider slider-card" data-slider aria-roledescription="карусель" aria-label="Карточки Librederm для Wildberries">
+        <div class="slides">
+          <div class="slide is-active"><img src="libre/cover.jpg" alt="Карточка Librederm — обложка: Увлажняющая сыворотка-активатор"><span class="sl-cap"><b>Обложка</b> · Увлажняющая сыворотка-активатор</span></div>
+          <div class="slide"><img src="libre/texture.jpg" alt="Карточка Librederm — текстура: Ультралёгкая, быстро впитывается"><span class="sl-cap"><b>Текстура</b> · Ультралёгкая, быстро впитывается</span></div>
+          <div class="slide"><img src="libre/composition.jpg" alt="Карточка Librederm — состав: Активные компоненты и их действие"><span class="sl-cap"><b>Состав</b> · Активные компоненты и их действие</span></div>
+          <div class="slide"><img src="libre/result.jpg" alt="Карточка Librederm — результат: Эффект регулярного ухода"><span class="sl-cap"><b>Результат</b> · Эффект регулярного ухода</span></div>
+          <div class="slide"><img src="libre/skin.jpg" alt="Карточка Librederm — кому подходит: Чувствительная, сухая и нормальная кожа"><span class="sl-cap"><b>Кому подходит</b> · Чувствительная, сухая и нормальная кожа</span></div>
+          <div class="slide"><img src="libre/howto.jpg" alt="Карточка Librederm — как применять: Три простых шага"><span class="sl-cap"><b>Как применять</b> · Три простых шага</span></div>
+          <div class="slide"><img src="libre/volume.jpg" alt="Карточка Librederm — объём: 30 мл, помещается в косметичку"><span class="sl-cap"><b>Объём</b> · 30 мл, помещается в косметичку</span></div>
+        </div>
+        <button class="sl-arrow sl-prev" type="button" aria-label="Предыдущая карточка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="sl-arrow sl-next" type="button" aria-label="Следующая карточка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <div class="sl-dots"></div>
+      </div>
+      <div class="project-body">
+        <div class="ptitle"><span class="cap">Маркетплейс · кейс для портфолио</span>
+        <h3 class="d">Librederm для Wildberries</h3></div>
+        <div class="ptext"><p class="meta">Серия карточек товара</p>
+        <p>«Тихие хуки» для сдержанного бренда: крупная фактура, фирменный цвет как единственный акцент и проверка, как карточка читается миниатюрой в выдаче</p>
+        <div class="chips"><span class="chip">GPT Image</span><span class="chip">Photoshop</span><span class="chip">Figma</span></div></div>
+      </div>
+    </article>
+  </div>
+  <div class="ppanel" role="tabpanel" id="panel-web" aria-labelledby="tab-web" hidden>
+    <div class="covers">
+      <button class="cover" type="button" data-case="colterenzio" aria-label="Открыть кейс Colterenzio">
+        <span class="cover-img"><img src="colt/01.jpg" alt="" loading="lazy"></span>
+        <span class="cover-txt"><span class="chip">Редизайн корпоративного сайта</span><span class="cover-t d">Colterenzio</span></span>
+      </button>
+      <button class="cover" type="button" data-case="theact" aria-label="Открыть кейс The act">
+        <span class="cover-img"><img src="act/cover-2.jpg" alt="" loading="lazy"></span>
+        <span class="cover-txt"><span class="chip">Редизайн карточки товара</span><span class="cover-t d">The act</span></span>
+      </button>
+      <button class="cover" type="button" data-case="taskpulse" aria-label="Открыть кейс TaskPulse">
+        <span class="cover-img"><img src="tp/00.jpg" alt="" loading="lazy"></span>
+        <span class="cover-txt"><span class="chip">Mobile app</span><span class="cover-t d">TaskPulse</span></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ОПЫТ -->
+<section class="sec dark" id="experience">
+  <div class="sec-head"><h2 class="d">Опыт работы</h2></div>
+  <div class="job" tabindex="0">
+    <div class="when">Авг 2023 — авг 2026<span class="dur">3 года 1 месяц</span></div>
+    <div><h3>Веб-дизайнер</h3><div class="org">ООО «Синоби»</div><div class="org-sub">Информационные технологии, системная интеграция, интернет</div></div>
+    <div class="job-desc"><ul class="job-list"><li><b>Работа в Figma</b> — проектирование макетов, прототипов, дизайн-систем, UI-китов</li><li><b>Основы UX/UI</b> — построение user flow, информационная архитектура, понятная навигация, удобство интерфейса</li><li><b>Адаптивный дизайн</b> — вёрстка под разные экраны (mobile-first, брейкпоинты), корректное отображение на мобильных и десктопе</li><li><b>Композиция, цвет, типографика</b> — грамотная иерархия, читаемые шрифты, сбалансированные цветовые схемы</li><li><b>Базовое понимание вёрстки</b> — знания HTML/CSS</li><li><b>Анимация и интерактив</b> — простые анимации и переходы (в Figma, After Effects)</li><li><b>Отрисовка баннеров</b> для контекстной рекламы</li><li><b>Работа с ИИ</b> — изображения, видео</li><li><b>Моушн-графика и видеомонтаж</b> (Adobe After Effects, DaVinci Resolve)</li></ul></div>
+  </div>
+  </section>
+
+<!-- НАВЫКИ -->
+<section class="sec" id="skills">
+  <div class="sec-head"><h2 class="d">Навыки</h2><span class="cap">и инструменты</span></div>
+  <div class="skills">
+    <div>
+      <h3>ИИ-продакшн</h3>
+      <details class="sk-acc"><summary><span class="cap">Хард-скиллы</span><span class="sk-n">6</span><span class="sk-plus" aria-hidden="true"></span></summary><div class="sk-list"><div class="sk"><h4 class="d">Работа с нейросетями</h4><p>Изображения (Krea, Seedream, Nano Banana, GPT Images, Flux), видео (Kling, Seedance, Veo), тексты и сценарии (Claude, ChatGPT)</p></div><div class="sk"><h4 class="d">Промпт-инжиниринг</h4><p>Чётко формулирую запросы под задачу, объект, окружение, свет, стиль и референсы</p></div><div class="sk"><h4 class="d">Визуальное мышление</h4><p>Композиция, свет, ракурсы и движение камеры</p></div><div class="sk"><h4 class="d">Консистентность стиля</h4><p>Выстраиваю цепочку инструментов, чтобы герой, костюм и свет совпадали во всех кадрах</p></div><div class="sk"><h4 class="d">Постпродакшн</h4><p>Figma, Photoshop, DaVinci Resolve, After Effects</p></div><div class="sk"><h4 class="d">Адаптация под площадки</h4><p>Понимаю аудиторию и задачу контента, делаю форматы для Reels, таргета и маркетплейсов</p></div></div></details>
+      <details class="sk-acc"><summary><span class="cap">Софт-скиллы</span><span class="sk-n">7</span><span class="sk-plus" aria-hidden="true"></span></summary><div class="sk-list"><div class="sk"><h4 class="d">Насмотренность</h4><p>Внимание к деталям, анализ и сбор референсов, чтобы задать нейросети правильное направление</p></div><div class="sk"><h4 class="d">Арт-дирекшн</h4><p>Отбираю сильные варианты и отсеиваю лишнее, чтобы получить хороший результат</p></div><div class="sk"><h4 class="d">Итерации и контроль качества</h4><p>Работаю системно для получения качественного результата</p></div><div class="sk"><h4 class="d">Аргументация решений</h4><p>Объясняю дизайн-решения через цели бизнеса и потребности пользователя, а не только через эстетику</p></div><div class="sk"><h4 class="d">Коммуникабельность</h4><p>Легко нахожу общий язык с командой и заказчиками, говорю понятно и по делу</p></div><div class="sk"><h4 class="d">Тайм-менеджмент</h4><p>Планирую работу, соблюдаю сроки и выстраиваю процесс так, чтобы ничего не терялось</p></div><div class="sk"><h4 class="d">Работа с правками</h4><p>Спокойно воспринимаю критику и превращаю обратную связь в понятные задачи для доработки</p></div></div></details>
+    </div>
+    <div>
+      <h3>Веб и UX/UI-дизайн</h3>
+      <details class="sk-acc"><summary><span class="cap">Хард-скиллы</span><span class="sk-n">9</span><span class="sk-plus" aria-hidden="true"></span></summary><div class="sk-list"><div class="sk"><h4 class="d">Figma</h4><p>Макеты, сетки, компоненты и стили, авто-лейауты, прототипы</p></div><div class="sk"><h4 class="d">Адаптивный дизайн и вёрстка</h4><p>Версии для десктопа, планшета и мобильных; базовые знания HTML и CSS</p></div><div class="sk"><h4 class="d">Визуальный дизайн</h4><p>Типографика, иерархия заголовков, цвет, читаемость</p></div><div class="sk"><h4 class="d">Информационная архитектура</h4><p>Структура страниц, навигация, логика переходов</p></div><div class="sk"><h4 class="d">Пользовательские сценарии</h4><p>CJM, user flow, CTA-цепочки, которые ведут к целевому действию</p></div><div class="sk"><h4 class="d">Исследования</h4><p>Интервью с пользователями, анализ конкурентов, формулирование гипотез</p></div><div class="sk"><h4 class="d">Маркетинг и метрики</h4><p>Оффер, УТП, структура лендинга, A/B-тесты; понимаю конверсию, CTR и отказы</p></div><div class="sk"><h4 class="d">Доступность и состояния</h4><p>Контраст, состояния элементов (hover, active, disabled), пустые экраны, ошибки и загрузки</p></div><div class="sk"><h4 class="d">Рекламная графика</h4><p>Баннеры, креативы под форматы площадок, карточки для маркетплейсов, обработка фото в Photoshop</p></div></div></details>
+      <details class="sk-acc"><summary><span class="cap">Софт-скиллы</span><span class="sk-n">7</span><span class="sk-plus" aria-hidden="true"></span></summary><div class="sk-list"><div class="sk"><h4 class="d">Детальный брифинг задачи</h4><p>Выясняю, что на самом деле нужно бизнесу, и превращаю размытый запрос в чёткое ТЗ</p></div><div class="sk"><h4 class="d">Работа с заказчиком</h4><p>Брифинг, согласование решений, передача макетов разработчикам</p></div><div class="sk"><h4 class="d">Нестандартное мышление</h4><p>Смотрю на задачу с разных ракурсов, пока не найду решение, которое и работает, и цепляет</p></div><div class="sk"><h4 class="d">Аргументация решений</h4><p>Объясняю дизайн-решения через цели бизнеса и потребности пользователя, а не только через эстетику</p></div><div class="sk"><h4 class="d">Коммуникабельность</h4><p>Легко нахожу общий язык с командой и заказчиками, говорю понятно и по делу</p></div><div class="sk"><h4 class="d">Тайм-менеджмент</h4><p>Планирую работу, соблюдаю сроки и выстраиваю процесс так, чтобы ничего не терялось</p></div><div class="sk"><h4 class="d">Работа с правками</h4><p>Спокойно воспринимаю критику и превращаю обратную связь в понятные задачи для доработки</p></div></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ОБРАЗОВАНИЕ -->
+<section class="sec" id="education">
+  <div class="sec-head"><h2 class="d">Образование</h2><span class="cap">и курсы</span></div>
+  <div class="edu">
+    <div>
+      <h3 class="edu-h d">Высшее</h3>
+      <div class="edu-row"><span class="edu-y">2015</span><div><b>Ростовский государственный строительный университет</b><span>Ростов-на-Дону · землеустройство и кадастры, городской кадастр</span></div></div>
+      </div>
+    <div>
+      <h3 class="edu-h d">Курсы и повышение квалификации</h3>
+      <div class="edu-row"><span class="edu-y">2026</span><div><b>Formfactor</b><span>Продуктовый дизайн</span></div></div>
+      <div class="edu-row"><span class="edu-y">2023</span><div><b>Uprock</b><span>UX/UI-дизайнер: психология пользователя, персоны и JTBD, Figma, сетки, типографика и цвет, лендинги и корпоративный сайт</span></div></div><div class="edu-row"><span class="edu-y">2023</span><div><b>Udemy</b><span>Полный курс по JavaScript + React: с нуля до результата</span></div></div>
+      <div class="edu-row"><span class="edu-y">2022</span><div><b>WebForMyself</b><span>Webflow-мастер: полное руководство</span></div></div>
+      <div class="edu-row"><span class="edu-y">2022</span><div><b>Stepik</b><span>Веб-разработка, HTML и CSS</span></div></div>
+      <div class="edu-row"><span class="edu-y">2022</span><div><b>Skillbox</b><span>Motion-design</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- КОНТАКТЫ -->
+<section class="cta" id="contacts">
+  <div class="cta-top">
+    <h2 class="d">Контакты</h2>
+  </div>
+  <a class="cta-row" href="https://t.me/tia_nia"><span class="d">Telegram</span><span class="val">@tia_nia</span><span class="arr" aria-hidden="true"></span></a>
+  <a class="cta-row" href="mailto:penyagina-tatyana@mail.ru"><span class="d">E-mail</span><span class="val">penyagina-tatyana@mail.ru</span><span class="arr" aria-hidden="true"></span></a>
+  <a class="cta-row" href="tel:+79017010018"><span class="d">Телефон</span><span class="val">+7 (901) 701-00-18</span><span class="arr" aria-hidden="true"></span></a>
+  
+</section>
+<footer><span class="cap">Penyagina Tatyana · AI Creator</span><span class="cap">Москва · удалённо или гибрид</span></footer>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.ptab'));
+  function select(t) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+      x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        var n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        select(n); n.focus(); e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  document.querySelectorAll('[data-slider]').forEach(function (root) {
+    var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+    var dotsBox = root.querySelector('.sl-dots'); var i = 0;
+    var dots = slides.map(function (_, n) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'sl-dot';
+      b.setAttribute('aria-label', 'Баннер ' + (n + 1)); b.addEventListener('click', function () { go(n); });
+      dotsBox.appendChild(b); return b;
+    });
+    function go(n) {
+      i = (n + slides.length) % slides.length;
+      slides.forEach(function (s, k) { s.classList.toggle('is-active', k === i); });
+      dots.forEach(function (d, k) { d.setAttribute('aria-current', k === i ? 'true' : 'false'); });
+    }
+    root.querySelector('.sl-prev').addEventListener('click', function () { go(i - 1); });
+    root.querySelector('.sl-next').addEventListener('click', function () { go(i + 1); });
+    go(0);
+  });
+})();
+</script>
+<div class="cm" id="caseModal" role="dialog" aria-modal="true" aria-label="Кейс" hidden>
+  <button class="cm-close" type="button" aria-label="Закрыть кейс"></button>
+  <div class="cm-body">
+    <div class="case" data-case="colterenzio" hidden>
+      <img src="colt/01.jpg" alt="Colterenzio, редизайн сайта: экран 1 из 8" loading="lazy" width="1600">
+      <img src="colt/02.jpg" alt="Colterenzio, редизайн сайта: экран 2 из 8" loading="lazy" width="1600">
+      <img src="colt/03.jpg" alt="Colterenzio, редизайн сайта: экран 3 из 8" loading="lazy" width="1600">
+      <img src="colt/04.jpg" alt="Colterenzio, редизайн сайта: экран 4 из 8" loading="lazy" width="1600">
+      <img src="colt/05.jpg" alt="Colterenzio, редизайн сайта: экран 5 из 8" loading="lazy" width="1600">
+      <img src="colt/06.jpg" alt="Colterenzio, редизайн сайта: экран 6 из 8" loading="lazy" width="1600">
+      <img src="colt/07.jpg" alt="Colterenzio, редизайн сайта: экран 7 из 8" loading="lazy" width="1600">
+      <img src="colt/08.jpg" alt="Colterenzio, редизайн сайта: экран 8 из 8" loading="lazy" width="1600">
+    </div>
+    <div class="case" data-case="theact" hidden>
+      <img src="act/00.jpg" alt="The act, редизайн карточки товара: обложка" loading="lazy" width="1600">
+      <img src="act/01.jpg" alt="The act, редизайн карточки товара: экран 1 из 8" loading="lazy" width="1600">
+      <img src="act/02.jpg" alt="The act, редизайн карточки товара: экран 2 из 8" loading="lazy" width="1600">
+      <img src="act/03.jpg" alt="The act, редизайн карточки товара: экран 3 из 8" loading="lazy" width="1600">
+      <img src="act/04.jpg" alt="The act, редизайн карточки товара: экран 4 из 8" loading="lazy" width="1600">
+      <img src="act/05.jpg" alt="The act, редизайн карточки товара: экран 5 из 8" loading="lazy" width="1600">
+      <img src="act/06.jpg" alt="The act, редизайн карточки товара: экран 6 из 8" loading="lazy" width="1600">
+      <img src="act/07.jpg" alt="The act, редизайн карточки товара: экран 7 из 8" loading="lazy" width="1600">
+      <img src="act/08.jpg" alt="The act, редизайн карточки товара: экран 8 из 8" loading="lazy" width="1600">
+    </div>
+    <div class="case" data-case="taskpulse" hidden>
+      <img src="tp/00.jpg" alt="TaskPulse, мобильное приложение: экран 1 из 7" loading="lazy" width="1400">
+      <img src="tp/01.jpg" alt="TaskPulse, мобильное приложение: экран 2 из 7" loading="lazy" width="1400">
+      <img src="tp/02.jpg" alt="TaskPulse, мобильное приложение: экран 3 из 7" loading="lazy" width="1400">
+      <img src="tp/03.jpg" alt="TaskPulse, мобильное приложение: экран 4 из 7" loading="lazy" width="1400">
+      <img src="tp/04.jpg" alt="TaskPulse, мобильное приложение: экран 5 из 7" loading="lazy" width="1400">
+      <img src="tp/05.jpg" alt="TaskPulse, мобильное приложение: экран 6 из 7" loading="lazy" width="1400">
+      <img src="tp/06.jpg" alt="TaskPulse, мобильное приложение: экран 7 из 7" loading="lazy" width="1400">
+    </div>
+  </div>
+</div>
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр изображений">
+  <div class="lb-cap" aria-live="polite"></div>
+  <button class="lb-close" type="button" aria-label="Закрыть"></button>
+  <button class="sl-arrow sl-prev" type="button" aria-label="Предыдущее изображение"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="lb-media"></div>
+  <button class="sl-arrow sl-next" type="button" aria-label="Следующее изображение"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="lb-count"></div>
+</div>
+<script>
+(function () {
+  var lb = document.getElementById('lightbox'), media = lb.querySelector('.lb-media'), count = lb.querySelector('.lb-count'), cap = lb.querySelector('.lb-cap');
+  var list = [], i = 0, back = null;
+  function show(n) {
+    i = (n + list.length) % list.length;
+    var it = list[i]; media.innerHTML = '';
+    var el;
+    if (it.video) { el = document.createElement('video'); el.src = it.video; el.controls = true; el.autoplay = true; el.playsInline = true; el.poster = it.src; }
+    else { el = document.createElement('img'); el.src = it.src; el.alt = it.alt; }
+    media.appendChild(el);
+    cap.innerHTML = it.cap || '';
+    count.textContent = (i + 1) + ' / ' + list.length;
+  }
+  function open(items, n, from) { list = items; back = from; lb.classList.add('open'); document.body.style.overflow = 'hidden'; show(n); lb.querySelector('.lb-close').focus(); }
+  function close() { lb.classList.remove('open'); media.innerHTML = ''; document.body.style.overflow = ''; if (back) back.focus(); }
+  document.querySelectorAll('[data-slider]').forEach(function (root) {
+    var box = root.querySelector('.slides');
+    var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+    box.setAttribute('tabindex', '0'); box.setAttribute('aria-label', 'Открыть в полноэкранном просмотре');
+    function items() {
+      return slides.map(function (s) {
+        var img = s.tagName === 'IMG' ? s : s.querySelector('img'); var c = s.querySelector('.sl-cap');
+        return { src: img.getAttribute('src'), alt: img.alt, video: s.getAttribute('data-video'), cap: c ? c.innerHTML : '' };
+      });
+    }
+    function go() {
+      var cur = slides.findIndex(function (s) { return s.classList.contains('is-active'); });
+      open(items(), Math.max(cur, 0), box);
+    }
+    box.addEventListener('click', go);
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    // видео-обложка: воспроизведение при наведении
+    slides.forEach(function (s) {
+      if (!s.classList.contains('is-video')) return;
+      var v = s.querySelector('video');
+      function play() { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); s.classList.add('playing'); }
+      function stop() { v.pause(); s.classList.remove('playing'); }
+      s.addEventListener('mouseenter', play);
+      s.addEventListener('mouseleave', stop);
+      s.querySelector('.play').addEventListener('click', function (e) { e.stopPropagation(); go(); });
+    });
+    root.querySelectorAll('.sl-arrow, .sl-dot').forEach(function (b) { b.addEventListener('click', function () { slides.forEach(function (s) { var v = s.querySelector('video'); if (v) { v.pause(); s.classList.remove('playing'); } }); }); });
+  });
+  lb.querySelector('.sl-prev').addEventListener('click', function () { show(i - 1); });
+  lb.querySelector('.sl-next').addEventListener('click', function () { show(i + 1); });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.addEventListener('click', function (e) { if (e.target === lb || e.target === media) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') show(i + 1);
+    if (e.key === 'ArrowLeft') show(i - 1);
+  });
+})();
+</script>
+<script>
+(function () {
+  function check() {
+    document.querySelectorAll('.job-desc').forEach(function (d) {
+      d.classList.remove('is-clamped');
+      var lh = parseFloat(getComputedStyle(d).lineHeight) || 23;
+      if (d.scrollHeight > lh * 6.6) d.classList.add('is-clamped');
+    });
+  }
+  check(); window.addEventListener('resize', check);
+})();
+</script>
+<script>
+(function () {
+  var m = document.getElementById('caseModal'), back = null;
+  function open(id, from) { back = from;
+    m.querySelectorAll('.case').forEach(function (c) { c.hidden = c.dataset.case !== id; });
+    m.hidden = false; m.scrollTop = 0; document.body.style.overflow = 'hidden'; m.querySelector('.cm-close').focus(); }
+  function close() { m.hidden = true; document.body.style.overflow = ''; if (back) back.focus(); }
+  document.querySelectorAll('button.cover').forEach(function (b) { b.addEventListener('click', function () { open(b.dataset.case, b); }); });
+  m.querySelector('.cm-close').addEventListener('click', close);
+  m.addEventListener('click', function (e) { if (e.target === m || e.target.classList.contains('cm-body')) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !m.hidden) close(); });
+})();
+</script>
+<script>
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var root = document.documentElement; root.classList.add('anim');
+  var groups = ['.sec-head', '.pillar', '.ach-row > div', '#panel-ads .project', '.cover', '.job', '.skills > div', '.edu > div', '.cta-top', '.cta-row'];
+  var els = [];
+  groups.forEach(function (sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      var sib = Array.prototype.indexOf.call(el.parentNode.children, el);
+      el.classList.add('rv'); el.style.setProperty('--d', Math.min(sib, 4) * 0.09 + 's'); els.push(el);
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+    els.forEach(function (el) { io.observe(el); });
+  } else { els.forEach(function (el) { el.classList.add('in'); }); }
+  // показать скрытые вкладки сразу при переключении
+  document.querySelectorAll('.ptab').forEach(function (t) { t.addEventListener('click', function () {
+    setTimeout(function () { document.querySelectorAll('.ppanel:not([hidden]) .rv').forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top < innerHeight) el.classList.add('in'); }); }, 30);
+  }); });
+  var hero = document.querySelector('.hero'), heroImg = document.querySelector('.hero-img'), heroIn = document.querySelector('.hero-in');
+  var covers = document.querySelectorAll('.cover-img img'), heads = document.querySelectorAll('.sec-head h2');
+  var ticking = false;
+  function update() {
+    ticking = false; var vh = innerHeight, y = scrollY;
+    if (hero) { var h = hero.offsetHeight; if (y < h) {
+      if (heroImg) heroImg.style.setProperty('--py', (y * 0.35).toFixed(1) + 'px');
+      if (heroIn) { heroIn.style.setProperty('--ty', (y * 0.18).toFixed(1) + 'px'); heroIn.style.setProperty('--to', Math.max(0, 1 - y / (h * 0.85)).toFixed(3)); }
+    } }
+    covers.forEach(function (img) { var r = img.parentNode.getBoundingClientRect(); if (r.bottom < 0 || r.top > vh) return;
+      var p = (r.top + r.height / 2 - vh / 2) / vh; img.style.setProperty('--py', (p * -28).toFixed(1) + 'px'); });
+    heads.forEach(function (h2) { var r = h2.getBoundingClientRect(); if (r.bottom < 0 || r.top > vh) return;
+      var p = Math.max(0, Math.min(1, r.top / vh)); h2.style.setProperty('--px', (p * 48).toFixed(1) + 'px'); });
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); update();
+})();
+</script>
+<script>
+(function () {
+  // Мобильное меню: «+» раскрывает разделы на планшете и телефоне
+  var bar = document.querySelector('.bar'), plus = document.querySelector('.bar .plus');
+  var mq = window.matchMedia('(max-width: 1024px)');
+  if (bar && plus) {
+    plus.addEventListener('click', function (e) { if (!mq.matches) return; e.preventDefault();
+      var open = bar.classList.toggle('menu-open'); plus.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+    bar.querySelectorAll('nav a').forEach(function (a) { a.addEventListener('click', function () { bar.classList.remove('menu-open'); plus.setAttribute('aria-expanded', 'false'); }); });
+  }
+  // Свайп в слайдерах и в окне просмотра
+  function swipe(el, prev, next) {
+    var x0 = null, y0 = null;
+    el.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', function (e) { if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { var b = dx < 0 ? next() : prev(); if (b) b.click(); } }, { passive: true });
+  }
+  document.querySelectorAll('[data-slider]').forEach(function (sl) {
+    swipe(sl, function () { return sl.querySelector('.sl-prev'); }, function () { return sl.querySelector('.sl-next'); });
+  });
+  var lb = document.getElementById('lightbox');
+  if (lb) swipe(lb, function () { return lb.querySelector('.sl-prev'); }, function () { return lb.querySelector('.sl-next'); });
+})();
+</script>
+</body>
+</html>
