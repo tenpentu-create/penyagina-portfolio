@@ -486,6 +486,7 @@ footer { position: relative; z-index: 20; }
 .strip-tab:hover { color: var(--pink); }
 .strip-tab:focus-visible { outline: 2px solid var(--pink); outline-offset: -2px; }
 .stack-mark { height: 0; }
+.stack + .stack-mark { height: 32vh; }
 
 /* Ступенчатые папки: каждая следующая вкладка ниже предыдущей */
 .tab-strip { display: none; }
@@ -973,7 +974,7 @@ footer { z-index: 200; }
   function hh() { return bar ? bar.offsetHeight : 60; }
   function th() { return own[1] ? own[1].offsetHeight : 30; }
   function stickTop(i) { return i ? hh() + i * th() : hh(); }
-  function go(i) { var y = marks[i].getBoundingClientRect().top + scrollY - stickTop(i); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
+  function go(i) { var y = marks[i].getBoundingClientRect().bottom + scrollY - stickTop(i); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     var id = a.getAttribute('href').slice(1); var i = secs.findIndex(function (el) { return el.id === id; });
     if (i > -1) a.addEventListener('click', function (e) { e.preventDefault(); go(i); });
