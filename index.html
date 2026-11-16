@@ -593,6 +593,10 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .plus { transition: background-color .2s, color .2s, transform .25s; }
 .plus { background: var(--black); color: #fff; }
 .plus:hover, .plus:focus-visible { background: var(--amber); color: var(--pink); }
+
+/* «Обо мне»: серый текст колонки становится белым при наведении */
+.pillar p, .plist li { transition: color .2s; }
+.pillar:hover p, .pillar:hover .plist li { color: #fff; }
 </style>
 </head>
 <body>
