@@ -581,6 +581,13 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .plist li::before { background: var(--amber-l); transition: background .2s; }
 .pillar:hover h3 { color: var(--pink); }
 .pillar:hover .plist li::before { background: var(--pink); }
+
+/* Пагинация слайдеров: вертикальные штрихи, активный — салатовый и выше */
+.sl-dots { gap: 2px; bottom: 14px; align-items: center; }
+.sl-dot { width: 13px; height: 18px; padding: 0 5px; background: rgba(255,255,255,.6); background-clip: content-box; transition: height .2s, background-color .2s; }
+.sl-dot[aria-current="true"] { width: 13px; height: 32px; background: var(--pink); background-clip: content-box; }
+.sl-dot:hover { background-color: #fff; }
+.sl-dot[aria-current="true"]:hover { background-color: var(--pink); }
 </style>
 </head>
 <body>
