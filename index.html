@@ -559,6 +559,11 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .stack-fill { position: fixed; left: 0; right: 0; height: 56px; display: none; pointer-events: none; }
 .stack-fill.on { display: block; }
 @media (max-width: 600px) { .stack-fill { height: 40px; } }
+
+/* Портфолио: описания как в «Обо мне», номера шагов приглушены, бейджи фиолетовые */
+.project-body p:not(.meta), .step-d, .fact span { font-family: var(--body); font-size: 16px; line-height: 1.55; color: #a5a3ab; }
+.step > b { color: rgba(255,255,255,.14); }
+.chip { background: var(--amber); color: #fff; }
 </style>
 </head>
 <body>
