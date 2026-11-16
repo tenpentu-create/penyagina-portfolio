@@ -440,6 +440,16 @@ footer { position: relative; z-index: 20; }
   .cta-row:nth-of-type(3) { --tx: calc(100% - 132px); padding-bottom: 44px; }
   .cta-row .d { height: 34px; padding: 0 22px; }
 }
+
+/* Наслаивание: блоки непрозрачные, у каждого вкладка-папка */
+.stack { background-color: var(--black); }
+.hero.stack { background-color: #8d8c8f; }
+.stack + .stack { box-shadow: 0 -30px 60px rgba(0,0,0,.6); }
+.stack-tab { position: absolute; bottom: 100%; left: calc(20px + var(--k) * ((100% - 220px) / 5)); height: 38px; padding: 0 30px; display: flex; align-items: center; color: #fff; font-size: 13px; white-space: nowrap; pointer-events: none; filter: drop-shadow(0 -1px 0 #3b3a40) drop-shadow(1px 0 0 #3b3a40) drop-shadow(-1px 0 0 #3b3a40); z-index: 1; }
+.stack-tab::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: -1; background: var(--black); clip-path: polygon(0 100%, 16px 0, calc(100% - 16px) 0, 100% 100%); }
+.stack { border-top: 1px solid #3b3a40; }
+.hero.stack { border-top: 0; }
+@media (max-width: 600px) { .stack-tab { height: 30px; padding: 0 20px; font-size: 11px; left: calc(12px + var(--k) * ((100% - 150px) / 5)); } }
 </style>
 </head>
 <body>
@@ -884,6 +894,10 @@ footer { position: relative; z-index: 20; }
 (function () {
   var secs = Array.prototype.slice.call(document.querySelectorAll('.stack'));
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tabs = ['Обо мне', 'Портфолио', 'Опыт работы', 'Навыки', 'Образование', 'Контакты'];
+  secs.forEach(function (el, i) { if (i === 0) return;
+    var t = document.createElement('span'); t.className = 'stack-tab cap'; t.setAttribute('aria-hidden', 'true');
+    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t); });
   function layout() {
     var vh = innerHeight;
     secs.forEach(function (el, i) { el.style.zIndex = i + 1; el.style.top = Math.min(60, vh - el.offsetHeight) + 'px'; });
@@ -894,9 +908,7 @@ footer { position: relative; z-index: 20; }
     var vh = innerHeight;
     secs.forEach(function (el, i) { var next = secs[i + 1]; if (!next) return;
       var p = Math.max(0, Math.min(1, (el.getBoundingClientRect().bottom - next.getBoundingClientRect().top) / vh));
-      el.style.opacity = (1 - p * 0.55).toFixed(3);
-      el.style.transform = p > 0 ? 'scale(' + (1 - p * 0.04).toFixed(4) + ')' : '';
-      el.style.transformOrigin = '50% 100%';
+      el.style.filter = p > 0.01 ? 'brightness(' + (1 - p * 0.45).toFixed(3) + ')' : '';
     });
   }
   var t = false;
