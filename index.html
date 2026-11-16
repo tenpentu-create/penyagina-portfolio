@@ -505,7 +505,7 @@ footer { z-index: 200; }
 .stack::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; background: var(--sbg, #0c0c0e); opacity: var(--cov, 0); pointer-events: none; }
 .stack > .stack-tab { z-index: 51; }
 /* Градиент под закреплённой вкладкой длинного блока: контент уходит под него */
-.stack-copy::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 56px; background: var(--sbg); -webkit-mask: linear-gradient(#000, transparent); mask: linear-gradient(#000, transparent); pointer-events: none; }
+.stack-copy::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: min(560px, 55vh); background: var(--sbg); -webkit-mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); pointer-events: none; }
 .stack-copy::before { content: ""; position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: 2px; background: var(--sbg); pointer-events: none; }
 </style>
 </head>
