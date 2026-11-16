@@ -486,6 +486,20 @@ footer { position: relative; z-index: 20; }
 .strip-tab:hover { color: var(--pink); }
 .strip-tab:focus-visible { outline: 2px solid var(--pink); outline-offset: -2px; }
 .stack-mark { height: 0; }
+
+/* Ступенчатые папки: каждая следующая вкладка ниже предыдущей */
+.tab-strip { display: none; }
+.stack-tab { pointer-events: auto; cursor: pointer; appearance: none; border: 0; font-family: var(--display); background: transparent; }
+.stack-tab:hover { color: var(--pink); }
+.stack-tab:focus-visible { outline: 2px solid var(--pink); outline-offset: -2px; }
+.stack-copy { position: fixed; left: 0; right: 0; padding: 0; border: 0; background: transparent; cursor: pointer; display: none; pointer-events: none; }
+.stack-copy.on { display: block; }
+.stack-copy .stack-tab { bottom: 0; pointer-events: auto; }
+.stack-copy .stack-tab::before { bottom: -1px; }
+.bar { z-index: 100; }
+footer { z-index: 200; }
+.cm, .lb { z-index: 300; }
+.cm-close { z-index: 301; }
 </style>
 </head>
 <body>
@@ -932,42 +946,48 @@ footer { position: relative; z-index: 20; }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tabs = ['Обо мне', 'Портфолио', 'Опыт работы', 'Навыки', 'Образование', 'Контакты'];
   var bar = document.querySelector('.bar');
-  var strip = document.createElement('nav'); strip.className = 'tab-strip'; strip.setAttribute('aria-label', 'Быстрый переход к разделам');
-  document.body.appendChild(strip);
-  var marks = [], copies = [];
+  var marks = [], own = [], copies = [];
   secs.forEach(function (el, i) {
     var m = document.createElement('div'); m.className = 'stack-mark'; el.parentNode.insertBefore(m, el); marks.push(m);
-    if (i === 0) { copies.push(null); return; }
-    var t = document.createElement('span'); t.className = 'stack-tab cap'; t.setAttribute('aria-hidden', 'true');
-    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t);
-    var c = document.createElement('button'); c.type = 'button'; c.className = 'stack-tab strip-tab cap';
-    c.textContent = tabs[i - 1] || ''; c.style.setProperty('--k', i - 1);
+    if (i === 0) { own.push(null); copies.push(null); return; }
+    var t = document.createElement('button'); t.type = 'button'; t.className = 'stack-tab cap';
+    t.textContent = tabs[i - 1] || ''; t.style.setProperty('--k', i - 1); el.appendChild(t); own.push(t);
+    t.addEventListener('click', function () { go(i); });
+    var c = document.createElement('button'); c.type = 'button'; c.className = 'stack-copy cap'; c.style.setProperty('--k', i - 1);
     c.style.setProperty('--sbg', getComputedStyle(el).getPropertyValue('--sbg') || '#0c0c0e');
-    c.addEventListener('click', function () { go(i); }); strip.appendChild(c); copies.push(c);
+    c.innerHTML = '<span class="stack-tab cap" style="--k:' + (i - 1) + '">' + (tabs[i - 1] || '') + '</span>';
+    c.setAttribute('aria-label', tabs[i - 1] || ''); c.addEventListener('click', function () { go(i); });
+    document.body.appendChild(c); copies.push(c);
   });
   function hh() { return bar ? bar.offsetHeight : 60; }
-  function th() { var t = secs[1] && secs[1].querySelector('.stack-tab'); return t ? t.offsetHeight : 32; }
-  function go(i) { var y = marks[i].getBoundingClientRect().top + scrollY - (i ? hh() + th() : hh()); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
+  function th() { return own[1] ? own[1].offsetHeight : 30; }
+  function stickTop(i) { return i ? hh() + i * th() : hh(); }
+  function go(i) { var y = marks[i].getBoundingClientRect().top + scrollY - stickTop(i); scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     var id = a.getAttribute('href').slice(1); var i = secs.findIndex(function (el) { return el.id === id; });
     if (i > -1) a.addEventListener('click', function (e) { e.preventDefault(); go(i); });
   });
   function layout() {
     var vh = innerHeight, H = hh(), T = th();
-    strip.style.top = H + 'px'; strip.style.height = T + 'px';
-    secs.forEach(function (el, i) { el.style.zIndex = i + 1; var stick = i ? H + T : H; el.style.top = Math.min(stick, vh - el.offsetHeight) + 'px'; });
+    secs.forEach(function (el, i) {
+      el.style.zIndex = 2 * i + 2; el.style.top = Math.min(stickTop(i), vh - el.offsetHeight) + 'px';
+      var c = copies[i]; if (c) { c.style.zIndex = 2 * i + 3; c.style.top = (H + (i - 1) * T) + 'px'; c.style.height = T + 'px'; }
+    });
     tick();
   }
   function tick() {
-    var vh = innerHeight, line = hh() + th() + 1, any = false;
+    var vh = innerHeight;
     secs.forEach(function (el, i) {
-      if (copies[i]) { var on = marks[i].getBoundingClientRect().top <= line; copies[i].classList.toggle('on', on); if (on) any = true; }
+      var c = copies[i];
+      var r = el.getBoundingClientRect(), st = stickTop(i), ct = st - r.top;
+      if (i && ct > 1 && r.bottom > st) { el.style.clipPath = 'inset(' + ct.toFixed(1) + 'px 0 0 0)'; el.style.webkitClipPath = el.style.clipPath; }
+      else if (el.style.clipPath) { el.style.clipPath = ''; el.style.webkitClipPath = ''; }
+      if (c) c.classList.toggle('on', ct > 1 && r.bottom > st);
       if (reduce) return;
       var next = secs[i + 1]; if (!next) return;
       var p = Math.max(0, Math.min(1, (el.getBoundingClientRect().bottom - next.getBoundingClientRect().top) / vh));
       el.style.filter = p > 0.01 ? 'brightness(' + (1 - p * 0.45).toFixed(3) + ')' : '';
     });
-    strip.classList.toggle('show', any);
   }
   var t = false;
   addEventListener('scroll', function () { if (!t) { t = true; requestAnimationFrame(function () { t = false; tick(); }); } }, { passive: true });
