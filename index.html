@@ -402,6 +402,44 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
   .slider-vert::before { padding-top: 0; }
   @media (max-width: 860px) { .slider-vert::before { padding-top: 125%; } }
 }
+
+/* ===== Тёмная тема: светлые блоки становятся чёрными ===== */
+:root { --paper: #0c0c0e; --white: #0c0c0e; --line: #34333a; --grey: #8f8d95; --amber-l: #A47AF6; color-scheme: dark; }
+body { color: #fff; }
+a:hover, .bar nav a:hover, .brand:hover, .plus:hover { color: var(--pink); }
+a:focus-visible, button:focus-visible, .ptab:focus-visible, button.cover:focus-visible, .sk-acc summary:focus-visible { outline-color: var(--pink); }
+.ptab, .cover, .sk-acc summary .cap { color: #fff; }
+.ptab[aria-selected="true"] { color: #fff; }
+.ptab:not([aria-selected="true"]) { background: transparent; color: var(--grey); }
+.ptab:hover, .ptab:not([aria-selected="true"]):hover, button.cover:hover .cover-t { color: var(--pink); }
+.sk-acc summary:hover .cap, .sk-acc summary:hover .sk-plus { color: var(--pink); border-color: var(--pink); }
+.sk-group-h { color: #fff; }
+.sk p, .edu-row span:not(.edu-y) { color: #a5a3ab; }
+.project-body .cap, .project-body .meta, .sk-n, .edu-y, .sk-sub { color: var(--amber-l); }
+
+/* ===== Наслаивание блоков при прокрутке ===== */
+.stack { position: sticky; }
+.stack + .stack { box-shadow: 0 -1px 0 var(--line), 0 -30px 60px rgba(0,0,0,.55); }
+footer { position: relative; z-index: 20; }
+
+/* ===== Контакты: папки с вкладками ===== */
+.cta { background: var(--black); padding-bottom: 0; }
+.cta-top { padding: 40px 40px 72px; }
+.cta-row { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 34px 40px 44px; border-top: 0; color: #fff; background: var(--f, #7E3BEB); }
+.cta-row:nth-of-type(1) { --f: #9a6af5; --tx: 40px; z-index: 1; }
+.cta-row:nth-of-type(2) { --f: #7E3BEB; --tx: calc(36% - 20px); z-index: 2; }
+.cta-row:nth-of-type(3) { --f: #6326c9; --tx: calc(72% - 40px); z-index: 3; padding-bottom: 64px; }
+.cta-row .d { position: absolute; left: var(--tx); bottom: 100%; height: 40px; display: flex; align-items: center; padding: 0 30px; background: var(--f); color: #fff; clip-path: polygon(0 100%, 16px 0, calc(100% - 16px) 0, 100% 100%); white-space: nowrap; }
+.cta a.cta-row:hover .d { color: var(--pink); }
+@media (max-width: 600px) {
+  .cta-top { padding: 32px 20px 64px; }
+  .cta-row { padding: 26px 20px 34px; grid-template-columns: 1fr auto; }
+  .cta-row span.val { grid-column: auto; grid-row: auto; }
+  .cta-row:nth-of-type(1) { --tx: 12px; }
+  .cta-row:nth-of-type(2) { --tx: calc(50% - 56px); }
+  .cta-row:nth-of-type(3) { --tx: calc(100% - 132px); padding-bottom: 44px; }
+  .cta-row .d { height: 34px; padding: 0 22px; }
+}
 </style>
 </head>
 <body>
@@ -420,7 +458,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </header>
 
 <!-- ГЕРОЙ -->
-<section class="hero" id="top">
+<section class="hero stack" id="top">
   <img class="hero-img" src="hero.jpg" alt="Татьяна Пенягина, портрет">
   <div class="hero-in">
     <h1 class="d">Penyagina Tatyana</h1>
@@ -430,7 +468,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </section>
 
 <!-- ОБО МНЕ -->
-<section class="pillars" id="about" aria-label="Обо мне">
+<section class="pillars stack" id="about" aria-label="Обо мне">
   <div class="pillar">
     <h3>Позиционирование</h3>
     <p>Я дизайнер с тремя годами коммерческого опыта. Проектирую интерфейсы и креативы, которые работают на пользователя и бизнес. Подхожу к контенту аналитически: связываю его с целями компании и слежу, как он влияет на результат.</p>
@@ -453,7 +491,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </section>
 
 <!-- ПОРТФОЛИО -->
-<section class="sec" id="projects">
+<section class="sec stack" id="projects">
   <div class="sec-head"><h2 class="d">Портфолио</h2><span class="cap">2026</span></div>
   <div class="ptabs" role="tablist" aria-label="Разделы портфолио">
     <button class="ptab d" role="tab" id="tab-ads" aria-controls="panel-ads" aria-selected="true">Рекламные креативы</button>
@@ -553,7 +591,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </section>
 
 <!-- ОПЫТ -->
-<section class="sec dark" id="experience">
+<section class="sec dark stack" id="experience">
   <div class="sec-head"><h2 class="d">Опыт работы</h2></div>
   <div class="job" tabindex="0">
     <div class="when">Авг 2023 — авг 2026<span class="dur">3 года 1 месяц</span></div>
@@ -563,7 +601,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
   </section>
 
 <!-- НАВЫКИ -->
-<section class="sec" id="skills">
+<section class="sec stack" id="skills">
   <div class="sec-head"><h2 class="d">Навыки</h2><span class="cap">и инструменты</span></div>
   <div class="skills">
     <div>
@@ -580,7 +618,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </section>
 
 <!-- ОБРАЗОВАНИЕ -->
-<section class="sec" id="education">
+<section class="sec stack" id="education">
   <div class="sec-head"><h2 class="d">Образование</h2><span class="cap">и курсы</span></div>
   <div class="edu">
     <div>
@@ -599,7 +637,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 </section>
 
 <!-- КОНТАКТЫ -->
-<section class="cta" id="contacts">
+<section class="cta stack" id="contacts">
   <div class="cta-top">
     <h2 class="d">Контакты</h2>
   </div>
@@ -781,7 +819,7 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var root = document.documentElement; root.classList.add('anim');
-  var groups = ['.sec-head', '.pillar', '.ach-row > div', '#panel-ads .project', '.cover', '.job', '.skills > div', '.edu > div', '.cta-top', '.cta-row'];
+  var groups = ['.sec-head', '.pillar', '.ach-row > div', '#panel-ads .project', '.cover', '.job', '.skills > div', '.edu > div', '.cta-top'];
   var els = [];
   groups.forEach(function (sel) {
     document.querySelectorAll(sel).forEach(function (el) {
@@ -840,6 +878,32 @@ footer { background: var(--black); color: #a5a3ab; display: flex; justify-conten
   });
   var lb = document.getElementById('lightbox');
   if (lb) swipe(lb, function () { return lb.querySelector('.sl-prev'); }, function () { return lb.querySelector('.sl-next'); });
+})();
+</script>
+<script>
+(function () {
+  var secs = Array.prototype.slice.call(document.querySelectorAll('.stack'));
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function layout() {
+    var vh = innerHeight;
+    secs.forEach(function (el, i) { el.style.zIndex = i + 1; el.style.top = Math.min(60, vh - el.offsetHeight) + 'px'; });
+    tick();
+  }
+  function tick() {
+    if (reduce) return;
+    var vh = innerHeight;
+    secs.forEach(function (el, i) { var next = secs[i + 1]; if (!next) return;
+      var p = Math.max(0, Math.min(1, (el.getBoundingClientRect().bottom - next.getBoundingClientRect().top) / vh));
+      el.style.opacity = (1 - p * 0.55).toFixed(3);
+      el.style.transform = p > 0 ? 'scale(' + (1 - p * 0.04).toFixed(4) + ')' : '';
+      el.style.transformOrigin = '50% 100%';
+    });
+  }
+  var t = false;
+  addEventListener('scroll', function () { if (!t) { t = true; requestAnimationFrame(function () { t = false; tick(); }); } }, { passive: true });
+  addEventListener('resize', layout); addEventListener('load', layout);
+  if ('ResizeObserver' in window) { var ro = new ResizeObserver(layout); secs.forEach(function (el) { ro.observe(el); }); }
+  layout();
 })();
 </script>
 </body>
