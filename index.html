@@ -461,6 +461,22 @@ footer { position: relative; z-index: 20; }
 /* Вкладки без обводки, без линии на стыке */
 .stack-tab { filter: none; }
 .stack { border-top: 0; }
+
+/* Градиент по странице: от чёрного к фиолетовому контактов */
+#about { --sbg: #0c0c0e; }
+#projects { --sbg: #130e1c; }
+#experience { --sbg: #1b122b; }
+#skills { --sbg: #26163f; }
+#education { --sbg: #331b57; }
+#contacts { --sbg: #432174; }
+.stack:not(.hero), .pillars.stack, .sec.dark.stack, .cta.stack { background: var(--sbg, #0c0c0e); }
+.stack { --white: transparent; --paper: transparent; }
+.stack-tab::before { background: var(--sbg, #0c0c0e); }
+.ptab[aria-selected="true"] { background: rgba(0,0,0,.28); }
+.sk-group-h { background: transparent; }
+.job-desc.is-clamped::after { background: linear-gradient(0deg, var(--sbg, #0c0c0e) 30%, transparent); }
+.slide.is-doc { background: #0c0c0e; }
+:root { --line: rgba(255,255,255,.14); }
 </style>
 </head>
 <body>
