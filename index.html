@@ -507,6 +507,10 @@ footer { z-index: 200; }
 /* Градиент под закреплённой вкладкой длинного блока: контент уходит под него */
 .stack-copy::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: min(560px, 55vh); background: var(--sbg); -webkit-mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); mask: linear-gradient(#000, rgba(0,0,0,.55) 35%, transparent); pointer-events: none; }
 .stack-copy::before { content: ""; position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: 2px; background: var(--sbg); pointer-events: none; }
+
+/* Главный экран статичен: без параллакса фото и текста */
+.anim .hero-img { transform: none !important; }
+.anim .hero-in { transform: none !important; opacity: 1 !important; }
 </style>
 </head>
 <body>
