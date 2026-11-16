@@ -1023,7 +1023,7 @@ details.sk p { padding: 0 40px 16px 0; }
   function layout() {
     var vh = innerHeight, H = hh(), T = th();
     secs.forEach(function (el, i) {
-      el.style.zIndex = 2 * i + 2; el.style.top = Math.min(stickTop(i), vh - el.offsetHeight) + 'px';
+      el.style.zIndex = 2 * i + 2; el.style.top = Math.min(stickTop(i), (i < secs.length - 1 ? vh * 0.5 : vh) - el.offsetHeight) + 'px';
       el.style.clipPath = ''; el.style.webkitClipPath = '';
       var r = rows[i]; if (r) { r.style.top = (H + (i - 1) * T) + 'px'; r.style.height = T + 'px'; }
     });
