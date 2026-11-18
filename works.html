@@ -29,7 +29,7 @@ button { font-family: inherit; }
 .wall { position: fixed; inset: 0; perspective: 1100px; perspective-origin: 50% 50%; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .wall.drag { cursor: grabbing; }
 .card { position: absolute; left: 0; top: 0; width: var(--cw); height: var(--ch); margin: 0; padding: 0; border: 0; background: #16121e; color: #fff; overflow: hidden; cursor: pointer; will-change: transform; transform-origin: 50% 50%; box-shadow: 0 30px 60px rgba(0,0,0,.55); outline: 1px solid rgba(255,255,255,.08); outline-offset: -1px; text-align: left; }
-.card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; pointer-events: none; transition: transform .5s ease, filter .3s; }
+.card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 30%; pointer-events: none; transition: transform .5s ease, filter .3s; }
 .card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7,6,10,.85), rgba(7,6,10,.25) 45%, rgba(7,6,10,0) 70%); pointer-events: none; }
 .card .c-txt { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; display: grid; gap: 6px; pointer-events: none; }
 .card .c-t { font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 22px; line-height: 1.05; }
@@ -73,6 +73,23 @@ button { font-family: inherit; }
   .top { padding: 14px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .card img { transition: none; } }
+
+/* Как на референсе: скругления, затемнение к краям, подсветка карточки под курсором */
+.card { border-radius: 22px; background: #110e17; }
+.card::before { content: ""; position: absolute; inset: 0; z-index: 2; background: #07060a; opacity: var(--dim, 0); pointer-events: none; transition: opacity .25s; border-radius: inherit; }
+.card img { filter: saturate(calc(1 - var(--dim, 0) * 1.1)); }
+.wall:hover .card { --hov: 1; }
+.wall.has-hover .card:not(:hover)::before { opacity: calc(var(--dim, 0) + .35); }
+.card:hover::before { opacity: 0; }
+.card:hover img { filter: none; }
+.card:hover { outline: 0; box-shadow: 0 0 0 2px var(--pink), 0 30px 60px rgba(0,0,0,.55); }
+.card .c-txt { z-index: 3; }
+.card .c-play { z-index: 3; border-radius: 50%; }
+.vign { position: fixed; inset: 0; z-index: 10; pointer-events: none; background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(7,6,10,0) 55%, rgba(7,6,10,.85) 100%); }
+.v-media { border-radius: 22px; }
+.v-more .card { border-radius: 18px; }
+.v-close { border-radius: 999px; }
+.v-nav { border-radius: 50%; }
 </style>
 </head>
 <body>
@@ -80,6 +97,7 @@ button { font-family: inherit; }
   <a class="back" href="index.html#projects"><span class="arr" aria-hidden="true"></span>На главную</a>
   <h1 class="ttl">ИИ-<span>креативы</span></h1>
 </header>
+<div class="vign" aria-hidden="true"></div>
 <main class="wall" id="wall" aria-label="Галерея ИИ-креативов: перетаскивайте, чтобы листать"></main>
 <div class="hint" id="hint">Тяните или листайте во все стороны · нажмите на работу, чтобы открыть</div>
 
@@ -123,7 +141,7 @@ button { font-family: inherit; }
   var wall = document.getElementById('wall');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var CW, CH, GX, GY, cols, rows, pool = [];
-  var ox = 0, oy = 0, vx = 0, vy = 0, spd = 0;
+  var ox = 0, oy = 0, vx = 0, vy = 0, spd = 0, svx = 0, svy = 0;
   function bump(d) { spd = Math.min(1, spd + Math.min(0.25, d / 400)); kick(); }
 
   function mod(a, n) { return ((a % n) + n) % n; }
@@ -142,8 +160,8 @@ button { font-family: inherit; }
 
   function build() {
     var vw = innerWidth, vh = innerHeight, small = vw < 700;
-    CW = small ? Math.round(vw * 0.52) : 290; CH = Math.round(CW * 4 / 3);
-    GX = CW + (small ? 16 : 28); GY = CH + (small ? 16 : 28);
+    CW = small ? Math.round(vw * 0.62) : 340; CH = Math.round(CW * 0.66);
+    GX = CW + (small ? 12 : 18); GY = CH + (small ? 12 : 18);
     document.documentElement.style.setProperty('--cw', CW + 'px');
     document.documentElement.style.setProperty('--ch', CH + 'px');
     var nc = Math.ceil(vw / GX) + 6, nr = Math.ceil(vh / GY) + 6;
@@ -162,7 +180,7 @@ button { font-family: inherit; }
     var c0 = Math.floor(-ox / GX) - 1, r0 = Math.floor(-oy / GY) - 1;
     for (var k = 0; k < pool.length; k++) {
       var b = pool[k], c = c0 + b._i, r = r0 + b._j;
-      var shift = mod(r, 2) ? GX / 2 : 0;
+      var shift = 0;
       var x = c * GX + ox + shift + (vw - cols * GX) / 2, y = r * GY + oy + (vh - rows * GY) / 2;
       fill(b, pick(c, r));
       b._c = c; b._r = r;
@@ -171,12 +189,14 @@ button { font-family: inherit; }
       if (reduce) tr = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
       else {
         // «рыбий глаз»: центр увеличен, края сжаты и загнуты по сфере; при движении эффект сильнее
-        var kk = 0.32 + spd * 0.45, f = 1 / (1 + kk * r2);
-        var nx = cx + (px - cx) * f, ny = cy + (py - cy) * f, sc = (1.04 + spd * 0.06) * f * f;
+        var kk = 0.34 + spd * 0.4, f = 1 / (1 + kk * r2);
+        var stx = 1 + Math.min(0.5, Math.abs(svx) / 60), sty = 1 + Math.min(0.5, Math.abs(svy) / 60);
+        var nx = cx + (px - cx) * f * stx, ny = cy + (py - cy) * f * sty, sc = (1.06 + spd * 0.05) * f * f;
         tr = 'translate3d(' + (nx - CW / 2).toFixed(1) + 'px,' + (ny - CH / 2).toFixed(1) + 'px,0) scale(' + sc.toFixed(4) + ') rotateY(' + (-dx * f * 34).toFixed(2) + 'deg) rotateX(' + (dy * f * 26).toFixed(2) + 'deg)';
       }
       b.style.transform = tr;
       b.style.zIndex = Math.round(2000 - r2 * 300);
+      b.style.setProperty('--dim', Math.min(0.75, r2 * 0.55).toFixed(3));
     }
   }
 
@@ -187,13 +207,14 @@ button { font-family: inherit; }
     var moving = !dragging && (Math.abs(vx) > 0.05 || Math.abs(vy) > 0.05);
     if (moving) { ox += vx; oy += vy; vx *= 0.94; vy *= 0.94; spd = Math.max(spd, Math.min(1, Math.hypot(vx, vy) / 40)); }
     if (!dragging) spd *= 0.9;
-    if (moving || spd > 0.005 || dragging) { render(); raf = requestAnimationFrame(loop); } else { spd = 0; render(); }
+    svx *= 0.86; svy *= 0.86; if (moving) { svx = svx * 0.7 + vx * 0.3; svy = svy * 0.7 + vy * 0.3; }
+    if (moving || spd > 0.005 || dragging || Math.abs(svx) > 0.2 || Math.abs(svy) > 0.2) { render(); raf = requestAnimationFrame(loop); } else { spd = 0; svx = svy = 0; render(); }
   }
   function kick() { if (!raf) raf = requestAnimationFrame(loop); }
   wall.addEventListener('wheel', function (e) {
     e.preventDefault(); hideHint();
     var k = e.deltaMode === 1 ? 16 : 1;
-    ox -= (e.shiftKey ? e.deltaY : e.deltaX) * k; oy -= (e.shiftKey ? 0 : e.deltaY) * k; bump(Math.abs(e.deltaX) + Math.abs(e.deltaY)); render();
+    var ddx = (e.shiftKey ? e.deltaY : e.deltaX) * k, ddy = (e.shiftKey ? 0 : e.deltaY) * k; ox -= ddx; oy -= ddy; svx = svx * 0.6 + ddx * 0.4; svy = svy * 0.6 + ddy * 0.4; bump(Math.abs(e.deltaX) + Math.abs(e.deltaY)); render();
   }, { passive: false });
 
   var dragging = false, moved = 0, lx = 0, ly = 0, lt = 0, downCard = null;
@@ -206,6 +227,7 @@ button { font-family: inherit; }
     var dx = e.clientX - lx, dy = e.clientY - ly, now = performance.now(), dt = Math.max(1, now - lt);
     ox += dx; oy += dy; moved += Math.abs(dx) + Math.abs(dy);
     vx = dx / dt * 16; vy = dy / dt * 16; lx = e.clientX; ly = e.clientY; lt = now;
+    svx = svx * 0.6 + dx * 0.4; svy = svy * 0.6 + dy * 0.4;
     if (moved > 6) hideHint(); bump(Math.abs(dx) + Math.abs(dy)); render();
   });
   function up(e) {
@@ -220,6 +242,8 @@ button { font-family: inherit; }
     if (e.key === 'Enter' && e.target.classList.contains('card')) openView(e.target._idx);
   });
 
+  wall.addEventListener('pointerover', function (e) { wall.classList.toggle('has-hover', !!e.target.closest('.card') && !dragging); });
+  wall.addEventListener('pointerleave', function () { wall.classList.remove('has-hover'); });
   var hint = document.getElementById('hint'), hinted = false;
   function hideHint() { if (!hinted) { hinted = true; hint.style.opacity = 0; } }
 
