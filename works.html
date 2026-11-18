@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ИИ-креативы — Penyagina Tatyana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --black: #0c0c0e; --pink: #C9FE34; --amber: #7E3BEB; --amber-l: #A47AF6; --display: 'Oswald', sans-serif; --body: 'Manrope', sans-serif; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #07060a; color: #fff; font-family: var(--body); overflow: hidden; }
+a { color: inherit; }
+button { font-family: inherit; }
+
+/* Шапка */
+.top { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; pointer-events: none; background: linear-gradient(#07060a, rgba(7,6,10,0)); }
+.top > * { pointer-events: auto; }
+.back { display: inline-flex; align-items: center; gap: 12px; font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 16px; letter-spacing: .04em; text-decoration: none; padding: 10px 0; }
+.back:hover { color: var(--pink); }
+.back .arr { transform: scaleX(-1); }
+.arr { display: inline-block; width: 28px; height: 12px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 12'%3E%3Cpath d='M0 6H25.5M20.5 1L25.5 6L20.5 11' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") no-repeat center / 100% 100%; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 12'%3E%3Cpath d='M0 6H25.5M20.5 1L25.5 6L20.5 11' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") no-repeat center / 100% 100%; }
+.ttl { font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: clamp(22px, 3vw, 34px); line-height: 1; margin: 0; }
+.ttl span { color: var(--amber-l); }
+.hint { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 20; font-size: 16px; color: #a5a3ab; pointer-events: none; transition: opacity .6s; white-space: nowrap; }
+
+/* Бесконечная стена карточек */
+.wall { position: fixed; inset: 0; perspective: 1100px; perspective-origin: 50% 50%; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.wall.drag { cursor: grabbing; }
+.card { position: absolute; left: 0; top: 0; width: var(--cw); height: var(--ch); margin: 0; padding: 0; border: 0; background: #16121e; color: #fff; overflow: hidden; cursor: pointer; will-change: transform; transform-origin: 50% 50%; box-shadow: 0 30px 60px rgba(0,0,0,.55); outline: 1px solid rgba(255,255,255,.08); outline-offset: -1px; text-align: left; }
+.card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; pointer-events: none; transition: transform .5s ease, filter .3s; }
+.card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7,6,10,.85), rgba(7,6,10,.25) 45%, rgba(7,6,10,0) 70%); pointer-events: none; }
+.card .c-txt { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; display: grid; gap: 6px; pointer-events: none; }
+.card .c-t { font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 22px; line-height: 1.05; }
+.card .c-s { font-size: 16px; line-height: 1.35; color: #d6d4dc; }
+.card .c-play { position: absolute; top: 14px; right: 14px; z-index: 1; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.7); display: grid; place-items: center; }
+.card .c-play::before { content: ""; border-left: 12px solid #fff; border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+.card:hover img { transform: scale(1.05); }
+.card:hover { outline: 2px solid var(--pink); outline-offset: -2px; }
+.card:hover .c-t { color: var(--pink); }
+.card:focus-visible { outline: 3px solid var(--pink); outline-offset: -3px; }
+
+/* Окно просмотра */
+.view { position: fixed; inset: 0; z-index: 50; background: #07060a; display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: auto minmax(0, 1fr) auto; gap: 16px 24px; padding: 24px 32px 28px; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+.view.open { opacity: 1; visibility: visible; }
+.v-close { grid-column: 1; justify-self: start; display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px 0 14px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 16px; letter-spacing: .04em; cursor: pointer; }
+.v-close::before { content: ""; width: 14px; height: 14px; background: linear-gradient(45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%); }
+.v-close:hover { color: var(--pink); border-color: var(--pink); }
+.v-more-h { grid-column: 2; grid-row: 1; align-self: end; font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 16px; letter-spacing: .06em; color: #a5a3ab; }
+.v-media { grid-column: 1; grid-row: 2; position: relative; min-height: 0; background: #110e17; display: grid; place-items: center; overflow: hidden; }
+.v-media img, .v-media video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; object-fit: contain; background: #110e17; }
+.v-nav { z-index: 2; }
+.v-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border: 1px solid rgba(255,255,255,.7); background: rgba(12,12,14,.45); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.v-nav::before { content: ""; width: 12px; height: 12px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; }
+.v-prev { left: 16px; } .v-prev::before { transform: rotate(-135deg); margin-left: 5px; }
+.v-next { right: 16px; } .v-next::before { transform: rotate(45deg); margin-right: 5px; }
+.v-nav:hover { color: var(--pink); border-color: var(--pink); }
+.v-info { grid-column: 1; grid-row: 3; display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; }
+.v-info h2 { margin: 0; font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: 28px; line-height: 1; }
+.v-info p { margin: 0; font-size: 16px; color: #a5a3ab; }
+.v-info .chip { font-size: 16px; padding: 2px 10px; background: var(--amber); color: #fff; }
+.v-more { grid-column: 2; grid-row: 2 / 4; display: grid; grid-auto-rows: 1fr; gap: 16px; min-height: 0; }
+.v-more .card { position: relative; width: 100%; height: 100%; transform: none !important; box-shadow: none; }
+.v-more .card .c-t { font-size: 20px; }
+
+@media (max-width: 900px) {
+  .view { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr) auto auto; padding: 16px 16px 20px; }
+  .v-more-h, .v-more { display: none; }
+  .v-info h2 { font-size: 24px; }
+  .v-nav { width: 40px; height: 40px; }
+  .card .c-t { font-size: 20px; }
+  .top { padding: 14px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .card img { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="index.html#projects"><span class="arr" aria-hidden="true"></span>На главную</a>
+  <h1 class="ttl">ИИ-<span>креативы</span></h1>
+</header>
+<main class="wall" id="wall" aria-label="Галерея ИИ-креативов: перетаскивайте, чтобы листать"></main>
+<div class="hint" id="hint">Тяните или листайте во все стороны · нажмите на работу, чтобы открыть</div>
+
+<div class="view" id="view" role="dialog" aria-modal="true" aria-label="Просмотр работы">
+  <button class="v-close" type="button" id="vClose">Закрыть</button>
+  <div class="v-more-h">Смотрите также</div>
+  <div class="v-media" id="vMedia">
+    <button class="v-nav v-prev" type="button" id="vPrev" aria-label="Предыдущая работа"></button>
+    <button class="v-nav v-next" type="button" id="vNext" aria-label="Следующая работа"></button>
+  </div>
+  <div class="v-info"><h2 id="vTitle"></h2><span class="chip" id="vTag"></span><p id="vSub"></p></div>
+  <div class="v-more" id="vMore"></div>
+</div>
+
+<script>
+(function () {
+  var items = [
+    { t: 'Новогодняя охота', s: 'Финальный ролик для ателье «Волшебная шляпа» · 25 секунд', tag: 'ИИ-видео', img: 'hunt-1.jpg', video: 'hunt/final.mp4' },
+    { t: 'Кадр 1', s: 'Валенки крадутся по снегу', tag: 'Новогодняя охота', img: 'hunt/f1.jpg' },
+    { t: 'Librederm', s: 'Обложка карточки: увлажняющая сыворотка-активатор', tag: 'Маркетплейс', img: 'libre/cover.jpg' },
+    { t: 'Кадр 2', s: 'Кот следит за действиями', tag: 'Новогодняя охота', img: 'hunt/f2.jpg' },
+    { t: 'Geely Cityray', s: 'Рекламный баннер для дилерской сети', tag: 'Баннер', img: 'banner-1.jpg' },
+    { t: 'Кадр 3', s: 'Хитрая Кира идёт к ёлке', tag: 'Новогодняя охота', img: 'hunt/f3.jpg' },
+    { t: 'Librederm', s: 'Текстура: ультралёгкая, быстро впитывается', tag: 'Маркетплейс', img: 'libre/texture.jpg' },
+    { t: 'Аниматик', s: 'Ролик «Новогодняя охота» до финального рендера', tag: 'Новогодняя охота', img: 'hunt/animatic.jpg' },
+    { t: 'Кадр 4а', s: 'Хруст ветки под валенком', tag: 'Новогодняя охота', img: 'hunt/f4a.jpg' },
+    { t: 'Librederm', s: 'Состав: активные компоненты и их действие', tag: 'Маркетплейс', img: 'libre/composition.jpg' },
+    { t: 'Кадр 4б', s: 'Испуганный кот', tag: 'Новогодняя охота', img: 'hunt/f4b.jpg' },
+    { t: 'Раскадровка', s: 'Ключевые сцены ролика «Новогодняя охота»', tag: 'Новогодняя охота', img: 'hunt/storyboard.jpg' },
+    { t: 'Кадр 4в', s: 'Испуганная Кира: «Ой!»', tag: 'Новогодняя охота', img: 'hunt/f4c.jpg' },
+    { t: 'Librederm', s: 'Результат: эффект регулярного ухода', tag: 'Маркетплейс', img: 'libre/result.jpg' },
+    { t: 'Кадр 5', s: 'Лиса убегает с кульком', tag: 'Новогодняя охота', img: 'hunt/f5.jpg' },
+    { t: 'Librederm', s: 'Кому подходит: чувствительная, сухая и нормальная кожа', tag: 'Маркетплейс', img: 'libre/skin.jpg' },
+    { t: 'Кадр 6а', s: 'Конфета падает в снег', tag: 'Новогодняя охота', img: 'hunt/f6a.jpg' },
+    { t: 'Librederm', s: 'Как применять: три простых шага', tag: 'Маркетплейс', img: 'libre/howto.jpg' },
+    { t: 'Кадр 6б', s: 'Рука тянется к конфете', tag: 'Новогодняя охота', img: 'hunt/f6b.jpg' },
+    { t: 'Librederm', s: 'Объём: 30 мл, помещается в косметичку', tag: 'Маркетплейс', img: 'libre/volume.jpg' },
+    { t: 'Кадр 7', s: 'Кира звонко смеётся', tag: 'Новогодняя охота', img: 'hunt/f7.jpg' }
+  ];
+  var N = items.length;
+  var wall = document.getElementById('wall');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CW, CH, GX, GY, cols, rows, pool = [];
+  var ox = 0, oy = 0, vx = 0, vy = 0;
+
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function pick(c, r) { return mod(c * 5 + r * 8, N); }
+
+  function fill(card, idx) {
+    if (card._idx === idx) return; card._idx = idx;
+    var it = items[idx];
+    card.innerHTML = '<img src="' + it.img + '" alt="" draggable="false">' +
+      (it.video ? '<span class="c-play" aria-hidden="true"></span>' : '') +
+      '<span class="c-txt"><span class="c-t"></span><span class="c-s"></span></span>';
+    card.querySelector('.c-t').textContent = it.t;
+    card.querySelector('.c-s').textContent = it.s;
+    card.setAttribute('aria-label', it.t + '. ' + it.s);
+  }
+
+  function build() {
+    var vw = innerWidth, vh = innerHeight, small = vw < 700;
+    CW = small ? Math.round(vw * 0.52) : 290; CH = Math.round(CW * 4 / 3);
+    GX = CW + (small ? 16 : 28); GY = CH + (small ? 16 : 28);
+    document.documentElement.style.setProperty('--cw', CW + 'px');
+    document.documentElement.style.setProperty('--ch', CH + 'px');
+    var nc = Math.ceil(vw / GX) + 3, nr = Math.ceil(vh / GY) + 3;
+    if (nc === cols && nr === rows && pool.length) { render(); return; }
+    cols = nc; rows = nr;
+    wall.innerHTML = ''; pool = [];
+    for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) {
+      var b = document.createElement('div'); b.className = 'card'; b.tabIndex = 0; b.setAttribute('role', 'button');
+      b._i = i; b._j = j; b._idx = -1; wall.appendChild(b); pool.push(b);
+    }
+    render();
+  }
+
+  function render() {
+    var vw = innerWidth, vh = innerHeight, cx = vw / 2, cy = vh / 2;
+    var c0 = Math.floor(-ox / GX) - 1, r0 = Math.floor(-oy / GY) - 1;
+    for (var k = 0; k < pool.length; k++) {
+      var b = pool[k], c = c0 + b._i, r = r0 + b._j;
+      var shift = mod(r, 2) ? GX / 2 : 0;
+      var x = c * GX + ox + shift + (vw - cols * GX) / 2, y = r * GY + oy + (vh - rows * GY) / 2;
+      fill(b, pick(c, r));
+      b._c = c; b._r = r;
+      var dx = (x + CW / 2 - cx) / cx, dy = (y + CH / 2 - cy) / cy;
+      var tr;
+      if (reduce) tr = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+      else {
+        var z = -140 + 240 * (dx * dx * 0.7 + dy * dy * 0.6);
+        tr = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,' + z.toFixed(1) + 'px) rotateY(' + (dx * 24).toFixed(2) + 'deg) rotateX(' + (-dy * 18).toFixed(2) + 'deg)';
+      }
+      b.style.transform = tr;
+      b.style.zIndex = Math.round(1000 + (dx * dx + dy * dy) * 100);
+    }
+  }
+
+  // Движение: колесо, перетаскивание, инерция
+  var raf = 0;
+  function loop() {
+    raf = 0;
+    if (!dragging && (Math.abs(vx) > 0.05 || Math.abs(vy) > 0.05)) {
+      ox += vx; oy += vy; vx *= 0.94; vy *= 0.94; render(); raf = requestAnimationFrame(loop);
+    }
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(loop); }
+  wall.addEventListener('wheel', function (e) {
+    e.preventDefault(); hideHint();
+    var k = e.deltaMode === 1 ? 16 : 1;
+    ox -= (e.shiftKey ? e.deltaY : e.deltaX) * k; oy -= (e.shiftKey ? 0 : e.deltaY) * k; render();
+  }, { passive: false });
+
+  var dragging = false, moved = 0, lx = 0, ly = 0, lt = 0, downCard = null;
+  wall.addEventListener('pointerdown', function (e) {
+    dragging = true; moved = 0; lx = e.clientX; ly = e.clientY; lt = performance.now(); vx = vy = 0;
+    downCard = e.target.closest('.card'); wall.setPointerCapture(e.pointerId); wall.classList.add('drag');
+  });
+  wall.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - lx, dy = e.clientY - ly, now = performance.now(), dt = Math.max(1, now - lt);
+    ox += dx; oy += dy; moved += Math.abs(dx) + Math.abs(dy);
+    vx = dx / dt * 16; vy = dy / dt * 16; lx = e.clientX; ly = e.clientY; lt = now;
+    if (moved > 6) hideHint(); render();
+  });
+  function up(e) {
+    if (!dragging) return; dragging = false; wall.classList.remove('drag');
+    if (moved < 6 && downCard) openView(downCard._idx); else if (!reduce) kick();
+    downCard = null;
+  }
+  wall.addEventListener('pointerup', up); wall.addEventListener('pointercancel', up);
+  wall.addEventListener('keydown', function (e) {
+    var step = 60, m = { ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step] }[e.key];
+    if (m && !view.classList.contains('open')) { ox += m[0]; oy += m[1]; render(); }
+    if (e.key === 'Enter' && e.target.classList.contains('card')) openView(e.target._idx);
+  });
+
+  var hint = document.getElementById('hint'), hinted = false;
+  function hideHint() { if (!hinted) { hinted = true; hint.style.opacity = 0; } }
+
+  // Окно просмотра
+  var view = document.getElementById('view'), vMedia = document.getElementById('vMedia'), vMore = document.getElementById('vMore');
+  var cur = 0, lastFocus = null;
+  function setMedia(it) {
+    var old = vMedia.querySelector('img, video'); if (old) old.remove();
+    var el;
+    if (it.video) { el = document.createElement('video'); el.src = it.video; el.poster = it.img; el.controls = true; el.playsInline = true; el.autoplay = true; }
+    else { el = document.createElement('img'); el.src = it.img; el.alt = it.t + '. ' + it.s; }
+    vMedia.insertBefore(el, vMedia.firstChild);
+  }
+  function openView(idx) {
+    cur = mod(idx, N); var it = items[cur];
+    setMedia(it);
+    document.getElementById('vTitle').textContent = it.t;
+    document.getElementById('vSub').textContent = it.s;
+    document.getElementById('vTag').textContent = it.tag;
+    vMore.innerHTML = '';
+    [1, 2, 3].forEach(function (d) {
+      var j = mod(cur + d * 3, N), b = document.createElement('div'); b.className = 'card'; b.tabIndex = 0; b.setAttribute('role', 'button'); b._idx = -1;
+      fill(b, j); b.addEventListener('click', function () { openView(j); }); vMore.appendChild(b);
+    });
+    if (!view.classList.contains('open')) { lastFocus = document.activeElement; view.classList.add('open'); document.getElementById('vClose').focus(); }
+  }
+  function closeView() {
+    view.classList.remove('open'); var v = vMedia.querySelector('video'); if (v) v.pause();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.getElementById('vClose').addEventListener('click', closeView);
+  document.getElementById('vPrev').addEventListener('click', function () { openView(cur - 1); });
+  document.getElementById('vNext').addEventListener('click', function () { openView(cur + 1); });
+  document.addEventListener('keydown', function (e) {
+    if (!view.classList.contains('open')) return;
+    if (e.key === 'Escape') closeView();
+    if (e.key === 'ArrowLeft') openView(cur - 1);
+    if (e.key === 'ArrowRight') openView(cur + 1);
+  });
+  var sx = null;
+  vMedia.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+  vMedia.addEventListener('touchend', function (e) { if (sx === null) return; var d = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(d) > 40) openView(cur + (d < 0 ? 1 : -1)); }, { passive: true });
+
+  var rt = 0; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(build, 120); });
+  build();
+})();
+</script>
+</body>
+</html>

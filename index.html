@@ -603,6 +603,11 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
 .slide .sl-cap, .slide .sl-cap b, .lb-cap, .lb-cap b, .job-desc, .job-list li, .job-list b, .job p,
 .sk p, .sk-acc .sk p, details.sk p, .edu-row span:not(.edu-y), .edu-y, .cta-row .d, footer .cap, .bar nav a { font-size: 16px; }
 @media (max-width: 600px) { .cta-row .d, .stack-tab { font-size: 16px; } }
+
+/* Ссылка на галерею ИИ-креативов */
+.all-link { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 32px 20px 40px; border-top: 1px solid var(--line); font-family: var(--display); text-transform: uppercase; font-weight: 600; font-size: clamp(24px, 3vw, 40px); line-height: 1; text-decoration: none; color: #fff; }
+.all-link:hover { color: var(--pink); }
+.all-link .arr { width: 42px; height: 16px; }
 </style>
 </head>
 <body>
@@ -734,6 +739,8 @@ details.sk summary h4 { font-family: var(--body); text-transform: none; font-siz
         <div class="chips"><span class="chip">GPT Image</span><span class="chip">Photoshop</span><span class="chip">Figma</span></div></div>
       </div>
     </article>
+  
+    <a class="all-link" href="works.html"><span>Смотреть все ИИ-креативы</span><span class="arr" aria-hidden="true"></span></a>
   </div>
   <div class="ppanel" role="tabpanel" id="panel-web" aria-labelledby="tab-web" hidden>
     <div class="covers">
